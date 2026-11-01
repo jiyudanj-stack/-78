@@ -1,59 +1,229 @@
 --==================================================
 -- 银行 + 仓库 + 8个装备卡槽
--- LocalScript
+-- 完整整合版
 --==================================================
 
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
+当地的玩家=游戏：GetService("玩家")
+当地的ReplicatedStorage=游戏：GetService("ReplicatedStorage")
+当地的UserInputService=game:GetService("UserInputService")
 
-local Player = Players.LocalPlayer
-local Event = ReplicatedStorage.Events.RemoteFunction.SandboxSpawn
+当地的player=players.LocalPlayer
+当地的事件=ReplicatedStorage.Events.RemoteFunction.SandboxSpawn
 
 --==================================================
--- 数据
+-- 基础数据
 --==================================================
 
-local Money = 600
-local Level = 0
-local MaxMoney = 22500
-local MaxLevel = 9
+当地的钱=600
+当地的级别=0
+当地的MaxMoney=22500
+当地的maxlevel=9
 
-local Running = true
-local SelectedUnit = nil
+当地的运行=正确
+当地的SelectedUnit=零
 
-local UpgradeCosts = {
+当地的UpgradeCosts={
     440,880,1320,1760,2200,
     2640,3080,3520,3960
 }
 
-local Units = {
-    {Name="真理鹈鹕",ID=151,Rank="B",Amount=8,Price=20000,Cooldown=200,Image=102009551876604,Category="普通"},
-    {Name="棍子",ID=109,Rank="B",Amount=8,Price=10000,Cooldown=100,Image=81963847967960,Category="普通"},
-    {Name="保持微笑",ID=144,Rank="A",Amount=2,Price=1000,Cooldown=35,Image=134391460910247,Category="僵尸"},
-    {Name="披萨",ID=136,Rank="A",Amount=2,Price=500,Cooldown=50,Image=76810868926793,Category="僵尸"},
-    {Name="保护僵尸",ID=135,Rank="A",Amount=2,Price=900,Cooldown=70,Image=117471233334728,Category="僵尸"},
-    {Name="诺曼",ID=104,Rank="B",Amount=2,Price=800,Cooldown=60,Image=76163313488934,Category="天使"},
-    {Name="审判",ID=115,Rank="B",Amount=6,Price=2000,Cooldown=50,Image=76008989733506,Category="天使"},
-    {Name="黑暗轰炸机战士",ID=22,Rank="B",Amount=4,Price=1000,Cooldown=25,Image=93022672755160,Category="普通"},
-    {Name="McBlast",ID=116,Rank="B",Amount=4,Price=300,Cooldown=30,Image=83665706736688,Category="死亡"},
-    {Name="粉碎机",ID=121,Rank="B",Amount=4,Price=8000,Cooldown=800,Image=132780898159572,Category="死亡"},
-    {Name="极限",ID=72,Rank="B",Amount=4,Price=20000,Cooldown=500,Image=90530027731674,Category="死亡"},
-    {Name="巨魔袭击",ID=105,Rank="B",Amount=4,Price=200,Cooldown=25,Image=119281801828499,Category="死亡"},
-    {Name="束缚状态",ID=69,Rank="B",Amount=4,Price=1200,Cooldown=20,Image=90355776344408,Category="死亡"},
-    {Name="地狱",ID=39,Rank="B",Amount=8,Price=2000,Cooldown=50,Image=113366045982105,Category="地狱"}
+--==================================================
+-- 单位数据
+--==================================================
+
+当地的单位={
+
+    -- 普通
+    {
+        Name="真理鹈鹕",
+        ID=151，秩="B"，金额=8,
+        Price=20000，冷却时间=200,
+        Image=102009551876604,
+        Category="普通"
+    },
+
+    {
+        Name="棍子",
+        ID=109，秩="B"，金额=8,
+        Price=10000，冷却时间=100,
+        Image=81963847967960,
+        Category="普通"
+    },
+
+    {
+        Name="黑暗轰炸机战士",
+        ID=22，秩="B"，金额=4,
+        Price=1000，冷却时间=25,
+        Image=93022672755160,
+        Category="普通"
+    },
+
+    {
+        Name="魔法生成器",
+        ID=24，秩="B"，金额=4,
+        Price=1600，冷却时间=50,
+        Image=101930259026845,
+        Category="普通"
+    },
+
+    -- 僵尸
+    {
+        Name="保持微笑",
+        ID=144，秩="A"，金额=2,
+        Price=1000，冷却时间=35,
+        Image=134391460910247,
+        Category="僵尸"
+    },
+
+    {
+        Name="披萨",
+        ID=136，秩="A"，金额=2,
+        Price=500，冷却时间=50,
+        Image=76810868926793,
+        Category="僵尸"
+    },
+
+    {
+        Name="保护僵尸",
+        ID=135，秩="A"，金额=2,
+        Price=900，冷却时间=70,
+        Image=117471233334728,
+        Category="僵尸"
+    },
+
+    -- 天使
+    {
+        Name="诺曼",
+        ID=104，秩="B"，金额=2,
+        Price=800，冷却时间=60,
+        Image=76163313488934,
+        Category="天使"
+    },
+
+    {
+        Name="审判",
+        ID=115，秩="B"，金额=6,
+        Price=2000，冷却时间=50,
+        Image=76008989733506,
+        Category="天使"
+    },
+
+    -- 死亡
+    {
+        Name="McBlast",
+        ID=116，秩="B"，金额=4,
+        Price=300，冷却时间=30,
+        Image=83665706736688,
+        Category="死亡"
+    },
+
+    {
+        Name="粉碎机",
+        ID=121,Rank="B",Amount=4,
+        Price=8000,Cooldown=800,
+        Image=132780898159572,
+        Category="死亡"
+    },
+
+    {
+        Name="极限",
+        ID=72,Rank="B",Amount=4,
+        Price=20000,Cooldown=500,
+        Image=90530027731674,
+        Category="死亡"
+    },
+
+    {
+        Name="巨魔袭击",
+        ID=105,Rank="B",Amount=4,
+        Price=200,Cooldown=25,
+        Image=119281801828499,
+        Category="死亡"
+    },
+
+    {
+        Name="束缚状态",
+        ID=69,Rank="B",Amount=4,
+        Price=1200,Cooldown=20,
+        Image=90355776344408,
+        Category="死亡"
+    },
+
+    -- 地狱
+    {
+        Name="地狱",
+        ID=39,Rank="B",Amount=8,
+        Price=2000,Cooldown=50,
+        Image=113366045982105,
+        Category="地狱"
+    },
+
+    {
+        Name="天才",
+        ID=89,Rank="B",Amount=4,
+        Price=1200,Cooldown=60,
+        Image=139624564209954,
+        Category="地狱"
+    },
+
+    {
+        Name="疯狂化学家",
+        ID=60,Rank="B",Amount=4,
+        Price=3000,Cooldown=100,
+        Image=134686338431581,
+        Category="地狱"
+    },
+
+    {
+        Name="Speeddemon",
+        ID=150,Rank="B",Amount=4,
+        Price=2400,Cooldown=70,
+        Image=73440841269995,
+        Category="地狱"
+    },
+
+    {
+        Name="盾牌战士",
+        ID=29,Rank="B",Amount=4,
+        Price=300,Cooldown=30,
+        Image=87500073270346,
+        Category="地狱"
+    },
+
+    {
+        Name="吉他英雄",
+        ID=35,Rank="B",Amount=4,
+        Price=2000,Cooldown=100,
+        Image=117913123207840,
+        Category="地狱"
+    },
+
+    {
+        Name="地狱火",
+        ID=40,Rank="B",Amount=4,
+        Price=1200,Cooldown=500,
+        Image=95516325060350,
+        Category="地狱"
+    }
 }
 
+--==================================================
+-- 卡槽数据
+--==================================================
+
 local Slots = {}
+
+for i=1,8 do
+    Slots[i] = {
+        Unit=nil
+    }
+end
+
 local SlotCards = {}
 local WarehouseCards = {}
 
-for i = 1,8 do
-    Slots[i] = {Unit=nil}
-end
-
 --==================================================
--- ScreenGui
+-- GUI
 --==================================================
 
 local Gui = Instance.new("ScreenGui")
@@ -63,6 +233,10 @@ Gui.IgnoreGuiInset = true
 Gui.DisplayOrder = 999999
 Gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 Gui.Parent = Player:WaitForChild("PlayerGui")
+
+--==================================================
+-- UI工具
+--==================================================
 
 local function Corner(obj,radius)
     local c = Instance.new("UICorner")
@@ -144,7 +318,7 @@ local function UpdateMoney()
 end
 
 --==================================================
--- 开始 / 停止
+-- 开始 / 停止按钮
 --==================================================
 
 local StartButton = Button(Gui,"Start","开始",
@@ -160,7 +334,7 @@ local WarehouseButton = Button(Gui,"WarehouseButton","仓库",
     UDim2.new(1,-95,0,90))
 
 --==================================================
--- 装备卡槽
+-- 卡槽区域
 --==================================================
 
 local SlotArea = Instance.new("Frame")
@@ -183,7 +357,7 @@ SlotGrid.VerticalAlignment = Enum.VerticalAlignment.Center
 SlotGrid.Parent = SlotArea
 
 --==================================================
--- 冷却
+-- 冷却计算
 --==================================================
 
 local function GetRemaining(unit)
@@ -191,7 +365,10 @@ local function GetRemaining(unit)
         return 0
     end
 
-    return math.max(0,unit.Cooldown-(os.clock()-unit.Last))
+    return math.max(
+        0,
+        unit.Cooldown-(os.clock()-unit.Last)
+    )
 end
 
 local function UpdateSlots()
@@ -209,10 +386,14 @@ local function UpdateSlots()
 
             if remaining > 0 then
                 data.CooldownMask.Visible = true
+
                 data.CooldownFill.Size = UDim2.new(
-                    1,0,remaining/unit.Cooldown,0
+                    1,0,
+                    remaining/unit.Cooldown,0
                 )
-                data.CooldownText.Text = tostring(math.ceil(remaining))
+
+                data.CooldownText.Text =
+                    tostring(math.ceil(remaining))
             else
                 data.CooldownMask.Visible = false
             end
@@ -225,7 +406,7 @@ local function UpdateSlots()
 end
 
 --==================================================
--- 仓库
+-- 仓库主界面
 --==================================================
 
 local Warehouse = Instance.new("Frame")
@@ -239,7 +420,7 @@ Warehouse.ZIndex = 120
 Warehouse.Parent = Gui
 Corner(Warehouse,10)
 
--- 整体缩放控制
+-- 整体缩放
 local WarehouseScale = Instance.new("UIScale")
 WarehouseScale.Scale = 1
 WarehouseScale.Parent = Warehouse
@@ -248,9 +429,22 @@ Label(Warehouse,"Title","单位仓库",
     UDim2.new(0.7,0,0,35),
     UDim2.new(0,5,0,3),121)
 
+-- 关闭按钮
 local CloseButton = Button(Warehouse,"Close","X",
     UDim2.new(0,35,0,30),
     UDim2.new(1,-42,0,5),130)
+
+CloseButton.MouseButton1Click:Connect(function()
+    Warehouse.Visible = false
+end)
+
+WarehouseButton.MouseButton1Click:Connect(function()
+    Warehouse.Visible = not Warehouse.Visible
+end)
+
+--==================================================
+-- 仓库缩小 / 放大
+--==================================================
 
 local ScaleButton = Button(Warehouse,"ScaleButton","−",
     UDim2.new(0,32,0,30),
@@ -270,16 +464,8 @@ ScaleButton.MouseButton1Click:Connect(function()
     end
 end)
 
-CloseButton.MouseButton1Click:Connect(function()
-    Warehouse.Visible = false
-end)
-
-WarehouseButton.MouseButton1Click:Connect(function()
-    Warehouse.Visible = not Warehouse.Visible
-end)
-
 --==================================================
--- 仓库拖拽（手机 + 电脑）
+-- 仓库拖拽
 --==================================================
 
 local DragBar = Instance.new("TextButton")
@@ -317,13 +503,13 @@ UserInputService.InputChanged:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseMovement
     or input.UserInputType == Enum.UserInputType.Touch then
 
-        local delta = input.Position - DragStart
+        local delta = input.Position-DragStart
 
         Warehouse.Position = UDim2.new(
             StartPosition.X.Scale,
-            StartPosition.X.Offset + delta.X,
+            StartPosition.X.Offset+delta.X,
             StartPosition.Y.Scale,
-            StartPosition.Y.Offset + delta.Y
+            StartPosition.Y.Offset+delta.Y
         )
     end
 end)
@@ -331,16 +517,20 @@ end)
 UserInputService.InputEnded:Connect(function(input)
     if input == DragInput
     or input.UserInputType == Enum.UserInputType.MouseButton1 then
+
         Dragging = false
         DragInput = nil
     end
 end)
 
 --==================================================
--- 仓库筛选
+-- 仓库分类
 --==================================================
 
-local Categories = {"全部","普通","地狱","死亡","天使","僵尸"}
+local Categories = {
+    "全部","普通","地狱","死亡","天使","僵尸"
+}
+
 local CurrentCategory = "全部"
 local CurrentRank = "全部"
 
@@ -358,6 +548,10 @@ CategoryGrid.Parent = CategoryFrame
 
 local CategoryButtons = {}
 
+--==================================================
+-- 等级筛选
+--==================================================
+
 local RankFrame = Instance.new("Frame")
 RankFrame.Size = UDim2.new(1,-10,0,30)
 RankFrame.Position = UDim2.new(0,5,0,78)
@@ -372,6 +566,10 @@ local RankA = Button(RankFrame,"RankA","A",
 local RankB = Button(RankFrame,"RankB","B",
     UDim2.new(0.5,-3,1,0),
     UDim2.new(0.5,3,0,0),122)
+
+--==================================================
+-- 仓库滚动列表
+--==================================================
 
 local Scroll = Instance.new("ScrollingFrame")
 Scroll.Name = "UnitList"
@@ -392,9 +590,15 @@ WarehouseGrid.CellPadding = UDim2.new(0,7,0,7)
 WarehouseGrid.SortOrder = Enum.SortOrder.LayoutOrder
 WarehouseGrid.Parent = Scroll
 
-local EmptyLabel = Label(Scroll,"Empty","还没有呢....",
-    UDim2.new(1,0,0,50),
-    UDim2.new(0,0,0,0),125)
+-- 空列表提示，独立覆盖层，不占用网格位置
+local EmptyLabel = Label(
+    Warehouse,
+    "Empty",
+    "还没有呢....",
+    UDim2.new(1,-20,0,50),
+    UDim2.new(0,10,0,250),
+    140
+)
 
 EmptyLabel.Visible = false
 
@@ -424,12 +628,16 @@ local function UpdateWarehouse()
             count += 1
 
             local card = Button(
-                Scroll,unit.Name,"",
+                Scroll,
+                unit.Name,
+                "",
                 UDim2.new(0,75,0,75),
-                UDim2.new(0,0,0,0),122
+                UDim2.new(0,0,0,0),
+                122
             )
 
             local icon = Instance.new("ImageLabel")
+            icon.Name = "UnitImage"
             icon.Size = UDim2.new(1,0,1,0)
             icon.BackgroundTransparency = 1
             icon.Image = "rbxassetid://"..unit.Image
@@ -458,11 +666,18 @@ local function UpdateWarehouse()
     Scroll.CanvasPosition = Vector2.new(0,0)
 end
 
+--==================================================
+-- 分类按钮
+--==================================================
+
 for _,category in ipairs(Categories) do
     local button = Button(
-        CategoryFrame,category,category,
+        CategoryFrame,
+        category,
+        category,
         UDim2.new(1,0,1,0),
-        UDim2.new(0,0,0,0),122
+        UDim2.new(0,0,0,0),
+        122
     )
 
     CategoryButtons[category] = button
@@ -481,39 +696,56 @@ for _,category in ipairs(Categories) do
     end)
 end
 
+CategoryButtons["全部"].BackgroundColor3 =
+    Color3.fromRGB(40,130,70)
+
+--==================================================
+-- A / B 等级筛选
+--==================================================
+
 RankA.MouseButton1Click:Connect(function()
-    CurrentRank = CurrentRank == "A" and "全部" or "A"
+    CurrentRank =
+        CurrentRank == "A" and "全部" or "A"
 
     RankA.BackgroundColor3 =
         CurrentRank == "A"
         and Color3.fromRGB(40,130,70)
         or Color3.fromRGB(45,45,45)
 
-    RankB.BackgroundColor3 = Color3.fromRGB(45,45,45)
+    RankB.BackgroundColor3 =
+        Color3.fromRGB(45,45,45)
+
     UpdateWarehouse()
 end)
 
 RankB.MouseButton1Click:Connect(function()
-    CurrentRank = CurrentRank == "B" and "全部" or "B"
+    CurrentRank =
+        CurrentRank == "B" and "全部" or "B"
 
     RankB.BackgroundColor3 =
         CurrentRank == "B"
         and Color3.fromRGB(40,130,70)
         or Color3.fromRGB(45,45,45)
 
-    RankA.BackgroundColor3 = Color3.fromRGB(45,45,45)
+    RankA.BackgroundColor3 =
+        Color3.fromRGB(45,45,45)
+
     UpdateWarehouse()
 end)
 
 --==================================================
--- 创建8个装备卡槽
+-- 创建8个卡槽
 --==================================================
 
-for i = 1,8 do
+for i=1,8 do
+
     local card = Button(
-        SlotArea,"Slot"..i,"",
+        SlotArea,
+        "Slot"..i,
+        "",
         UDim2.new(0,0,0,0),
-        UDim2.new(0,0,0,0),101
+        UDim2.new(0,0,0,0),
+        101
     )
 
     card.LayoutOrder = i
@@ -537,7 +769,7 @@ for i = 1,8 do
     priceText.TextColor3 = Color3.new(1,1,1)
     priceText.TextScaled = true
     priceText.Font = Enum.Font.GothamBold
-    priceText.ZIndex = 103
+    priceText.ZIndex = 107
     priceText.Visible = false
     priceText.Parent = card
 
@@ -562,10 +794,14 @@ for i = 1,8 do
     cooldownFill.Parent = cooldownMask
 
     local cooldownText = Label(
-        cooldownMask,"CooldownText","",
+        cooldownMask,
+        "CooldownText",
+        "",
         UDim2.new(1,0,0,25),
-        UDim2.new(0,0,0.5,-12),106
+        UDim2.new(0,0,0.5,-12),
+        106
     )
+
     cooldownText.TextStrokeTransparency = 0
 
     SlotCards[i] = {
@@ -577,8 +813,15 @@ for i = 1,8 do
         CooldownText = cooldownText
     }
 
+    --==================================================
+    -- 卡槽互动
+    --==================================================
+
     card.MouseButton1Click:Connect(function()
+
+        -- 有选中单位：装备或替换
         if SelectedUnit ~= nil then
+
             if Running then
                 return
             end
@@ -588,9 +831,11 @@ for i = 1,8 do
 
             UpdateSlots()
             UpdateWarehouse()
+
             return
         end
 
+        -- 没有选中单位：召唤
         if not Running then
             return
         end
@@ -615,34 +860,40 @@ for i = 1,8 do
         UpdateMoney()
         UpdateSlots()
 
-        task.spawn(function()
-            local success,err = pcall(function()
-                Event:InvokeServer(
-                    "Enemy",
-                    unit.ID,
-                    unit.Rank,
-                    unit.Amount,
+task.spawn(功能()
+            当地的成功，err=pcall(功能()
+事件：InvokeServer(
+                    "敌人",
+unit.ID，
+单位，等级，
+单位.数量，
                     {}
                 )
-            end)
+            结束)
 
-            if not success then
-                warn("召唤失败：",err)
-            end
-        end)
-    end)
-end
+            如果 不成功然后
+警告("召唤失败："，err)
+            结束
+        结束)
+
+    结束)
+结束
 
 --==================================================
 -- 银行升级
 --==================================================
 
-UpgradeButton.MouseButton1Click:Connect(function()
-    if not Running or Level >= MaxLevel then
-        return
-    end
+UpgradeButton.MouseButton1Click:Connect(功能()
 
-    local cost = UpgradeCosts[Level+1]
+    如果 不跑步然后
+        返回
+    结束
+
+    如果级别>=最大级别然后
+        返回
+    结束
+
+    当地的成本=升级成本[级别+1]
 
     if Money >= cost then
         Money -= cost
@@ -656,6 +907,7 @@ end)
 --==================================================
 
 StopButton.MouseButton1Click:Connect(function()
+
     Running = false
     Level = 0
     Money = 600
@@ -674,84 +926,93 @@ end)
 -- 开始
 --==================================================
 
-StartButton.MouseButton1Click:Connect(function()
-    if Running then
-        return
-    end
+--==================================================
 
-    Running = true
+如果跑步然后
+        返回
+    结束
 
-    for _,unit in ipairs(Units) do
-        unit.Last = os.clock()
-    end
+运行=正确
 
-    UpdateMoney()
-    UpdateSlots()
-    UpdateWarehouse()
-end)
+为_，单位在……内ipairs(单位)做
+unit.Last=os.clock()
+    结束
+
+UpdateMoney()
+UpdateSlots()
+UpdateWarehouse()
+结束)
 
 --==================================================
 -- 隐藏 / 显示主界面
 --==================================================
 
-local Hidden = false
+当地的隐藏=假的
 
-local HideButton = Button(
-    Gui,"HideButton","隐藏",
-    UDim2.new(0,85,0,35),
-    UDim2.new(1,-95,0,135),1000000
+当地的HideButton=按钮(
+GUI，
+    "隐藏按钮",
+"隐藏"
+UDim2.new(0，85，0，35)，0，85，0，35)，
+UDim2.new(1，-95，0，135)，1，-95，0，135)，
+    1000000
 )
 
-HideButton.ZIndex = 1000000
+HideButton.ZIndex=1000000
 
-local MainUI = {
-    Bank,
-    StartButton,
-    StopButton,
-    WarehouseButton,
-    SlotArea
+当地的mainui={
+银行，
+StartButton，
+停止按钮，
+WarehouseButton，
+SlotArea
 }
 
-HideButton.MouseButton1Click:Connect(function()
-    Hidden = not Hidden
+HideButton.MouseButton1Click:Connect(功能()
 
-    for _,obj in ipairs(MainUI) do
-        obj.Visible = not Hidden
-    end
+隐藏=不隐藏的
 
-    Warehouse.Visible = false
-    HideButton.Text = Hidden and "显示" or "隐藏"
-end)
+为_，obj在...内ipairs(mainui)做
+obj.Visible=不隐藏的
+    结束
+
+仓库.看得见的=假的
+
+HideButton.Text=
+隐藏的和 "显示" 或 "隐藏"
+结束)
 
 --==================================================
 -- 银行收入
 --==================================================
 
-task.spawn(function()
-    while Gui.Parent do
-        task.wait(0.1)
+任务.派生(功能()
 
-        if Running then
-            Money = math.min(
-                MaxMoney,
-                Money + 1 + Level*10
+在...期间Guui.家长做
+task.wait(0.1)
+
+如果跑步然后
+money=math.min(
+MaxMoney，
+钱+1+级别*10
             )
 
-            UpdateMoney()
-        end
-    end
-end)
+UpdateMoney()
+        结束
+    结束
+结束)
 
 --==================================================
 -- 冷却刷新
 --==================================================
 
-task.spawn(function()
-    while Gui.Parent do
-        UpdateSlots()
-        task.wait(0.1)
-    end
-end)
+任务.派生(功能()
+
+在...期间Guui.家长做
+UpdateSlots()
+task.wait(0.1)
+    结束
+结束)
 
 --==================================================
 -- 初始化
@@ -760,3 +1021,6 @@ end)
 UpdateMoney()
 UpdateSlots()
 UpdateWarehouse()
+
+打印("银行 + 仓库系统加载完成")"银行 + 仓库系统加载完成")
+打印("单位总数："..数量单位..数量单位)
