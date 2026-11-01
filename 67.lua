@@ -11,11 +11,12 @@ local Player = Players.LocalPlayer
 local Event = ReplicatedStorage.Events.RemoteFunction.SandboxSpawn
 
 --==================================================
--- 基础数据
+-- 银行数据
 --==================================================
 
 local Money = 600
 local Level = 0
+
 local MaxMoney = 22500
 local MaxLevel = 9
 
@@ -201,7 +202,7 @@ local Units = {
     {
         Name="地狱火",
         ID=40,Rank="B",Amount=4,
-        Price=1200,Cooldown=500,
+        Price=12000,Cooldown=500,
         Image=95516325060350,
         Category="地狱"
     }
@@ -590,7 +591,7 @@ WarehouseGrid.CellPadding = UDim2.new(0,7,0,7)
 WarehouseGrid.SortOrder = Enum.SortOrder.LayoutOrder
 WarehouseGrid.Parent = Scroll
 
--- 空列表提示，独立覆盖层，不占用网格位置
+-- 空列表提示
 local EmptyLabel = Label(
     Warehouse,
     "Empty",
@@ -603,10 +604,25 @@ local EmptyLabel = Label(
 EmptyLabel.Visible = false
 
 --==================================================
+-- 检查单位是否已经装备
+--==================================================
+
+local function IsUnitEquipped(unit)
+    for _,slot in ipairs(Slots) do
+        if slot.Unit == unit then
+            return true
+        end
+    end
+
+    return false
+end
+
+--==================================================
 -- 更新仓库
 --==================================================
 
 local function UpdateWarehouse()
+
     for _,card in ipairs(WarehouseCards) do
         card:Destroy()
     end
@@ -616,6 +632,7 @@ local function UpdateWarehouse()
     local count = 0
 
     for _,unit in ipairs(Units) do
+
         local categoryMatch =
             CurrentCategory == "全部"
             or unit.Category == CurrentCategory
@@ -625,7 +642,10 @@ local function UpdateWarehouse()
             or unit.Rank == CurrentRank
 
         if categoryMatch and rankMatch then
+
             count += 1
+
+            local equipped = IsUnitEquipped(unit)
 
             local card = Button(
                 Scroll,
@@ -646,6 +666,30 @@ local function UpdateWarehouse()
             icon.Parent = card
             Corner(icon,8)
 
+            -- 已装备单位显示灰色遮罩
+            if equipped then
+                card.BackgroundColor3 =
+                    Color3.fromRGB(65,65,65)
+
+                local mask = Instance.new("Frame")
+                mask.Size = UDim2.new(1,0,1,0)
+                mask.BackgroundColor3 = Color3.new(0,0,0)
+                mask.BackgroundTransparency = 0.45
+                mask.BorderSizePixel = 0
+                mask.ZIndex = 124
+                mask.Parent = card
+                Corner(mask,8)
+
+                local mark = Label(
+                    mask,
+                    "Equipped",
+                    "已装备",
+                    UDim2.new(1,0,0,25),
+                    UDim2.new(0,0,0.5,-12),
+                    125
+                )
+            end
+
             if SelectedUnit == unit then
                 local stroke = Instance.new("UIStroke")
                 stroke.Color = Color3.fromRGB(255,220,0)
@@ -654,6 +698,14 @@ local function UpdateWarehouse()
             end
 
             card.MouseButton1Click:Connect(function()
+
+                -- 已经在任意卡槽中：禁止选择
+                if IsUnitEquipped(unit) then
+                    SelectedUnit = nil
+                    UpdateWarehouse()
+                    return
+                end
+
                 SelectedUnit = unit
                 UpdateWarehouse()
             end)
@@ -671,6 +723,7 @@ end
 --==================================================
 
 for _,category in ipairs(Categories) do
+
     local button = Button(
         CategoryFrame,
         category,
@@ -683,6 +736,7 @@ for _,category in ipairs(Categories) do
     CategoryButtons[category] = button
 
     button.MouseButton1Click:Connect(function()
+
         CurrentCategory = category
 
         for name,other in pairs(CategoryButtons) do
@@ -704,6 +758,7 @@ CategoryButtons["全部"].BackgroundColor3 =
 --==================================================
 
 RankA.MouseButton1Click:Connect(function()
+
     CurrentRank =
         CurrentRank == "A" and "全部" or "A"
 
@@ -719,6 +774,7 @@ RankA.MouseButton1Click:Connect(function()
 end)
 
 RankB.MouseButton1Click:Connect(function()
+
     CurrentRank =
         CurrentRank == "B" and "全部" or "B"
 
@@ -826,6 +882,22 @@ for i=1,8 do
                 return
             end
 
+            -- 目标卡槽已经是这个单位，不重复操作
+            if Slots[i].Unit == SelectedUnit then
+                SelectedUnit = nil
+                UpdateWarehouse()
+                return
+            end
+
+            -- 检查其他卡槽，防止重复装备
+            for slotIndex,slot in ipairs(Slots) do
+                if slotIndex ~= i and slot.Unit == SelectedUnit then
+                    SelectedUnit = nil
+                    UpdateWarehouse()
+                    return
+                end
+            end
+
             Slots[i].Unit = SelectedUnit
             SelectedUnit = nil
 
@@ -861,7 +933,9 @@ for i=1,8 do
         UpdateSlots()
 
         task.spawn(function()
+
             local success,err = pcall(function()
+
                 Event:InvokeServer(
                     "Enemy",
                     unit.ID,
@@ -869,11 +943,13 @@ for i=1,8 do
                     unit.Amount,
                     {}
                 )
+
             end)
 
             if not success then
                 warn("召唤失败：",err)
             end
+
         end)
 
     end)
@@ -989,9 +1065,11 @@ end)
 task.spawn(function()
 
     while Gui.Parent do
+
         task.wait(0.1)
 
         if Running then
+
             Money = math.min(
                 MaxMoney,
                 Money + 1 + Level*10
