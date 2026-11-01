@@ -3,26 +3,26 @@
 -- 完整整合版
 --==================================================
 
-当地的玩家=游戏：GetService("玩家")
-当地的ReplicatedStorage=游戏：GetService("ReplicatedStorage")
-当地的UserInputService=game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 
-当地的player=players.LocalPlayer
-当地的事件=ReplicatedStorage.Events.RemoteFunction.SandboxSpawn
+local Player = Players.LocalPlayer
+local Event = ReplicatedStorage.Events.RemoteFunction.SandboxSpawn
 
 --==================================================
 -- 基础数据
 --==================================================
 
-当地的钱=600
-当地的级别=0
-当地的MaxMoney=22500
-当地的maxlevel=9
+local Money = 600
+local Level = 0
+local MaxMoney = 22500
+local MaxLevel = 9
 
-当地的运行=正确
-当地的SelectedUnit=零
+local Running = true
+local SelectedUnit = nil
 
-当地的UpgradeCosts={
+local UpgradeCosts = {
     440,880,1320,1760,2200,
     2640,3080,3520,3960
 }
@@ -31,37 +31,37 @@
 -- 单位数据
 --==================================================
 
-当地的单位={
+local Units = {
 
     -- 普通
     {
         Name="真理鹈鹕",
-        ID=151，秩="B"，金额=8,
-        Price=20000，冷却时间=200,
+        ID=151,Rank="B",Amount=8,
+        Price=20000,Cooldown=200,
         Image=102009551876604,
         Category="普通"
     },
 
     {
         Name="棍子",
-        ID=109，秩="B"，金额=8,
-        Price=10000，冷却时间=100,
+        ID=109,Rank="B",Amount=8,
+        Price=10000,Cooldown=100,
         Image=81963847967960,
         Category="普通"
     },
 
     {
         Name="黑暗轰炸机战士",
-        ID=22，秩="B"，金额=4,
-        Price=1000，冷却时间=25,
+        ID=22,Rank="B",Amount=4,
+        Price=1000,Cooldown=25,
         Image=93022672755160,
         Category="普通"
     },
 
     {
         Name="魔法生成器",
-        ID=24，秩="B"，金额=4,
-        Price=1600，冷却时间=50,
+        ID=24,Rank="B",Amount=4,
+        Price=1600,Cooldown=50,
         Image=101930259026845,
         Category="普通"
     },
@@ -69,24 +69,24 @@
     -- 僵尸
     {
         Name="保持微笑",
-        ID=144，秩="A"，金额=2,
-        Price=1000，冷却时间=35,
+        ID=144,Rank="A",Amount=2,
+        Price=1000,Cooldown=35,
         Image=134391460910247,
         Category="僵尸"
     },
 
     {
         Name="披萨",
-        ID=136，秩="A"，金额=2,
-        Price=500，冷却时间=50,
+        ID=136,Rank="A",Amount=2,
+        Price=500,Cooldown=50,
         Image=76810868926793,
         Category="僵尸"
     },
 
     {
         Name="保护僵尸",
-        ID=135，秩="A"，金额=2,
-        Price=900，冷却时间=70,
+        ID=135,Rank="A",Amount=2,
+        Price=900,Cooldown=70,
         Image=117471233334728,
         Category="僵尸"
     },
@@ -94,16 +94,16 @@
     -- 天使
     {
         Name="诺曼",
-        ID=104，秩="B"，金额=2,
-        Price=800，冷却时间=60,
+        ID=104,Rank="B",Amount=2,
+        Price=800,Cooldown=60,
         Image=76163313488934,
         Category="天使"
     },
 
     {
         Name="审判",
-        ID=115，秩="B"，金额=6,
-        Price=2000，冷却时间=50,
+        ID=115,Rank="B",Amount=6,
+        Price=2000,Cooldown=50,
         Image=76008989733506,
         Category="天使"
     },
@@ -111,8 +111,8 @@
     -- 死亡
     {
         Name="McBlast",
-        ID=116，秩="B"，金额=4,
-        Price=300，冷却时间=30,
+        ID=116,Rank="B",Amount=4,
+        Price=300,Cooldown=30,
         Image=83665706736688,
         Category="死亡"
     },
@@ -860,40 +860,40 @@ for i=1,8 do
         UpdateMoney()
         UpdateSlots()
 
-task.spawn(功能()
-            当地的成功，err=pcall(功能()
-事件：InvokeServer(
-                    "敌人",
-unit.ID，
-单位，等级，
-单位.数量，
+        task.spawn(function()
+            local success,err = pcall(function()
+                Event:InvokeServer(
+                    "Enemy",
+                    unit.ID,
+                    unit.Rank,
+                    unit.Amount,
                     {}
                 )
-            结束)
+            end)
 
-            如果 不成功然后
-警告("召唤失败："，err)
-            结束
-        结束)
+            if not success then
+                warn("召唤失败：",err)
+            end
+        end)
 
-    结束)
-结束
+    end)
+end
 
 --==================================================
 -- 银行升级
 --==================================================
 
-UpgradeButton.MouseButton1Click:Connect(功能()
+UpgradeButton.MouseButton1Click:Connect(function()
 
-    如果 不跑步然后
-        返回
-    结束
+    if not Running then
+        return
+    end
 
-    如果级别>=最大级别然后
-        返回
-    结束
+    if Level >= MaxLevel then
+        return
+    end
 
-    当地的成本=升级成本[级别+1]
+    local cost = UpgradeCosts[Level+1]
 
     if Money >= cost then
         Money -= cost
@@ -926,93 +926,93 @@ end)
 -- 开始
 --==================================================
 
---==================================================
+StartButton.MouseButton1Click:Connect(function()
 
-如果跑步然后
-        返回
-    结束
+    if Running then
+        return
+    end
 
-运行=正确
+    Running = true
 
-为_，单位在……内ipairs(单位)做
-unit.Last=os.clock()
-    结束
+    for _,unit in ipairs(Units) do
+        unit.Last = os.clock()
+    end
 
-UpdateMoney()
-UpdateSlots()
-UpdateWarehouse()
-结束)
+    UpdateMoney()
+    UpdateSlots()
+    UpdateWarehouse()
+end)
 
 --==================================================
 -- 隐藏 / 显示主界面
 --==================================================
 
-当地的隐藏=假的
+local Hidden = false
 
-当地的HideButton=按钮(
-GUI，
-    "隐藏按钮",
-"隐藏"
-UDim2.new(0，85，0，35)，0，85，0，35)，
-UDim2.new(1，-95，0，135)，1，-95，0，135)，
+local HideButton = Button(
+    Gui,
+    "HideButton",
+    "隐藏",
+    UDim2.new(0,85,0,35),
+    UDim2.new(1,-95,0,135),
     1000000
 )
 
-HideButton.ZIndex=1000000
+HideButton.ZIndex = 1000000
 
-当地的mainui={
-银行，
-StartButton，
-停止按钮，
-WarehouseButton，
-SlotArea
+local MainUI = {
+    Bank,
+    StartButton,
+    StopButton,
+    WarehouseButton,
+    SlotArea
 }
 
-HideButton.MouseButton1Click:Connect(功能()
+HideButton.MouseButton1Click:Connect(function()
 
-隐藏=不隐藏的
+    Hidden = not Hidden
 
-为_，obj在...内ipairs(mainui)做
-obj.Visible=不隐藏的
-    结束
+    for _,obj in ipairs(MainUI) do
+        obj.Visible = not Hidden
+    end
 
-仓库.看得见的=假的
+    Warehouse.Visible = false
 
-HideButton.Text=
-隐藏的和 "显示" 或 "隐藏"
-结束)
+    HideButton.Text =
+        Hidden and "显示" or "隐藏"
+end)
 
 --==================================================
 -- 银行收入
 --==================================================
 
-任务.派生(功能()
+task.spawn(function()
 
-在...期间Guui.家长做
-task.wait(0.1)
+    while Gui.Parent do
+        task.wait(0.1)
 
-如果跑步然后
-money=math.min(
-MaxMoney，
-钱+1+级别*10
+        if Running then
+            Money = math.min(
+                MaxMoney,
+                Money + 1 + Level*10
             )
 
-UpdateMoney()
-        结束
-    结束
-结束)
+            UpdateMoney()
+        end
+    end
+end)
 
 --==================================================
 -- 冷却刷新
 --==================================================
 
-任务.派生(功能()
+task.spawn(function()
 
-在...期间Guui.家长做
-UpdateSlots()
-task.wait(0.1)
-    结束
-结束)
+    while Gui.Parent do
+        UpdateSlots()
+        task.wait(0.1)
+    end
+end)
 
 --==================================================
 -- 初始化
@@ -1022,5 +1022,5 @@ UpdateMoney()
 UpdateSlots()
 UpdateWarehouse()
 
-打印("银行 + 仓库系统加载完成")"银行 + 仓库系统加载完成")
-打印("单位总数："..数量单位..数量单位)
+print("银行 + 仓库系统加载完成")
+print("单位总数："..#Units)
