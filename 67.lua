@@ -1,6 +1,6 @@
 --==================================================
 -- 银行 + 仓库 + 8个装备卡槽
--- 完整整合版
+-- LocalScript
 --==================================================
 
 local Players = game:GetService("Players")
@@ -55,7 +55,6 @@ local Units = {
     {Name="巨魔袭击",ID=105,Rank="B",Amount=4,Price=200,Cooldown=25,Image=119281801828499,Category="死亡"},
     {Name="束缚状态",ID=69,Rank="B",Amount=4,Price=1200,Cooldown=20,Image=90355776344408,Category="死亡"},
 
-    -- 新增死亡单位
     {Name="双黑暗之心",ID=54,Rank="B",Amount=10,Price=300,Cooldown=10,Image=90816086906198,Category="死亡"},
     {Name="贝蒂",ID=56,Rank="B",Amount=10,Price=300,Cooldown=15,Image=112152174802483,Category="死亡"},
     {Name="血角",ID=65,Rank="B",Amount=10,Price=800,Cooldown=20,Image=73907201693668,Category="死亡"},
@@ -107,10 +106,6 @@ Gui.IgnoreGuiInset = true
 Gui.DisplayOrder = 999999
 Gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 Gui.Parent = Player:WaitForChild("PlayerGui")
-
---==================================================
--- UI工具
---==================================================
 
 local function Corner(obj,radius)
     local c = Instance.new("UICorner")
@@ -252,7 +247,6 @@ local function UpdateSlots()
         if unit then
             data.Icon.Image = "rbxassetid://"..unit.Image
             data.Icon.Visible = true
-
             data.PriceText.Text = "$"..unit.Price
             data.PriceText.Visible = true
 
@@ -262,7 +256,7 @@ local function UpdateSlots()
                 data.CooldownMask.Visible = true
                 data.CooldownFill.Size = UDim2.new(
                     1,0,
-                    remaining/unit.Cooldown,0
+                    math.clamp(remaining/unit.Cooldown,0,1),0
                 )
                 data.CooldownText.Text =
                     tostring(math.ceil(remaining))
@@ -335,7 +329,7 @@ ScaleButton.MouseButton1Click:Connect(function()
 end)
 
 --==================================================
--- 仓库拖拽
+-- 仓库拖拽（支持手机）
 --==================================================
 
 local DragBar = Instance.new("TextButton")
@@ -460,7 +454,7 @@ WarehouseGrid.Parent = Scroll
 local EmptyLabel = Label(
     Warehouse,
     "Empty",
-    "还没有呢....",
+    "没有符合条件的单位",
     UDim2.new(1,-20,0,50),
     UDim2.new(0,10,0,250),
     140
@@ -558,6 +552,12 @@ local function UpdateWarehouse()
             end
 
             card.MouseButton1Click:Connect(function()
+
+                -- 只有停止状态才能选择或更换单位
+                if Running then
+                    return
+                end
+
                 if IsUnitEquipped(unit) then
                     SelectedUnit = nil
                     UpdateWarehouse()
@@ -718,43 +718,51 @@ for i=1,8 do
         CooldownText = cooldownText
     }
 
-    -- 卡槽点击
+    --==================================================
+    -- 卡槽点击逻辑
+    --==================================================
+
     card.MouseButton1Click:Connect(function()
 
-        -- 装备或替换
-        if SelectedUnit ~= nil then
-            if Running then
-                return
-            end
+        -- 停止状态：允许装备、替换、清空
+        if not Running then
 
-            if Slots[i].Unit == SelectedUnit then
+            -- 已选择仓库单位：装备或替换
+            if SelectedUnit ~= nil then
+
+                -- 防止重复装备
+                for slotIndex,slot in ipairs(Slots) do
+                    if slotIndex ~= i
+                    and slot.Unit
+                    and slot.Unit.ID == SelectedUnit.ID then
+                        SelectedUnit = nil
+                        UpdateWarehouse()
+                        return
+                    end
+                end
+
+                Slots[i].Unit = SelectedUnit
                 SelectedUnit = nil
+
+                UpdateSlots()
                 UpdateWarehouse()
                 return
             end
 
-            for slotIndex,slot in ipairs(Slots) do
-                if slotIndex ~= i
-                and slot.Unit
-                and slot.Unit.ID == SelectedUnit.ID then
-                    SelectedUnit = nil
-                    UpdateWarehouse()
-                    return
-                end
+            -- 没有选择仓库单位：清空当前卡槽
+            if Slots[i].Unit ~= nil then
+                Slots[i].Unit = nil
+
+                UpdateSlots()
+                UpdateWarehouse()
             end
 
-            Slots[i].Unit = SelectedUnit
-            SelectedUnit = nil
-
-            UpdateSlots()
-            UpdateWarehouse()
             return
         end
 
-        -- 召唤
-        if not Running then
-            return
-        end
+        --==================================================
+        -- 开始状态：只能召唤
+        --==================================================
 
         local unit = Slots[i].Unit
 
@@ -845,9 +853,10 @@ StartButton.MouseButton1Click:Connect(function()
     end
 
     Running = true
+    SelectedUnit = nil
 
-    -- 所有单位开始时冷却归零
-    -- 只有粉碎机进入完整冷却
+    -- 所有单位冷却归零
+    -- 只有粉碎机进入完整800秒冷却
     for _,unit in ipairs(Units) do
         if unit.Name == "粉碎机" then
             unit.Last = os.clock()
@@ -876,22 +885,14 @@ local HideButton = Button(
     1000000
 )
 
-HideButton.ZIndex = 1000000
-
-local MainUI = {
-    Bank,
-    StartButton,
-    StopButton,
-    WarehouseButton,
-    SlotArea
-}
-
 HideButton.MouseButton1Click:Connect(function()
     Hidden = not Hidden
 
-    for _,obj in ipairs(MainUI) do
-        obj.Visible = not Hidden
-    end
+    Bank.Visible = not Hidden
+    StartButton.Visible = not Hidden
+    StopButton.Visible = not Hidden
+    WarehouseButton.Visible = not Hidden
+    SlotArea.Visible = not Hidden
 
     Warehouse.Visible = false
     HideButton.Text = Hidden and "显示" or "隐藏"
