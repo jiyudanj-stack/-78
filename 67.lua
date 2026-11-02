@@ -1,5 +1,5 @@
 --==================================================
--- 银行 + 仓库 + 8个装备卡槽
+-- 银行 + 仓库 + 8个装备卡槽 + PC数字键设置
 -- LocalScript
 --==================================================
 
@@ -9,6 +9,9 @@ local UserInputService = game:GetService("UserInputService")
 
 local Player = Players.LocalPlayer
 local Event = ReplicatedStorage.Events.RemoteFunction.SandboxSpawn
+
+local IsPC = UserInputService.KeyboardEnabled
+    and not UserInputService.TouchEnabled
 
 --==================================================
 -- 银行数据
@@ -25,6 +28,23 @@ local SelectedUnit = nil
 local UpgradeCosts = {
     440,880,1320,1760,2200,
     2640,3080,3520,3960
+}
+
+--==================================================
+-- PC按键设置
+--==================================================
+
+local SlotKeys = {1,2,3,4,5,6,7,8}
+
+local SlotKeyCodes = {
+    [1] = Enum.KeyCode.One,
+    [2] = Enum.KeyCode.Two,
+    [3] = Enum.KeyCode.Three,
+    [4] = Enum.KeyCode.Four,
+    [5] = Enum.KeyCode.Five,
+    [6] = Enum.KeyCode.Six,
+    [7] = Enum.KeyCode.Seven,
+    [8] = Enum.KeyCode.Eight
 }
 
 --==================================================
@@ -203,6 +223,23 @@ local WarehouseButton = Button(Gui,"WarehouseButton","仓库",
     UDim2.new(1,-95,0,90))
 
 --==================================================
+-- PC设置按钮
+--==================================================
+
+local SettingsButton
+
+if IsPC then
+    SettingsButton = Button(
+        Gui,
+        "KeySettings",
+        "按键设置",
+        UDim2.new(0,100,0,35),
+        UDim2.new(1,-205,0,90),
+        1000
+    )
+end
+
+--==================================================
 -- 卡槽区域
 --==================================================
 
@@ -335,7 +372,6 @@ end)
 local DragBar = Instance.new("TextButton")
 DragBar.Name = "DragBar"
 DragBar.Size = UDim2.new(1,-120,0,38)
-DragBar.Position = UDim2.new(0,0,0,0)
 DragBar.BackgroundTransparency = 1
 DragBar.Text = ""
 DragBar.AutoButtonColor = false
@@ -344,9 +380,9 @@ DragBar.ZIndex = 125
 DragBar.Parent = Warehouse
 
 local Dragging = false
-local DragStart = nil
-local StartPosition = nil
-local DragInput = nil
+local DragStart
+local StartPosition
+local DragInput
 
 DragBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1
@@ -359,9 +395,7 @@ DragBar.InputBegan:Connect(function(input)
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-    if not Dragging then
-        return
-    end
+    if not Dragging then return end
 
     if input.UserInputType == Enum.UserInputType.MouseMovement
     or input.UserInputType == Enum.UserInputType.Touch then
@@ -552,11 +586,7 @@ local function UpdateWarehouse()
             end
 
             card.MouseButton1Click:Connect(function()
-
-                -- 只有停止状态才能选择或更换单位
-                if Running then
-                    return
-                end
+                if Running then return end
 
                 if IsUnitEquipped(unit) then
                     SelectedUnit = nil
@@ -640,10 +670,89 @@ RankB.MouseButton1Click:Connect(function()
 end)
 
 --==================================================
+-- 召唤单位
+--==================================================
+
+local function SummonUnit(unit)
+    if not Running then return end
+    if not unit then return end
+    if GetRemaining(unit) > 0 then return end
+    if Money < unit.Price then return end
+
+    Money -= unit.Price
+    unit.Last = os.clock()
+
+    UpdateMoney()
+    UpdateSlots()
+
+    task.spawn(function()
+        local success,err = pcall(function()
+            Event:InvokeServer(
+                "Enemy",
+                unit.ID,
+                unit.Rank,
+                unit.Amount,
+                unit.Args or {}
+            )
+        end)
+
+        if not success then
+            warn("召唤失败：",err)
+        end
+    end)
+end
+
+--==================================================
+-- 卡槽操作
+--==================================================
+
+local function ActivateSlot(i)
+
+    -- 停止状态：装备、替换、清空
+    if not Running then
+
+        if SelectedUnit ~= nil then
+
+            -- 防止同一单位重复装备
+            for slotIndex,slot in ipairs(Slots) do
+                if slotIndex ~= i
+                and slot.Unit
+                and slot.Unit.ID == SelectedUnit.ID then
+                    SelectedUnit = nil
+                    UpdateWarehouse()
+                    return
+                end
+            end
+
+            Slots[i].Unit = SelectedUnit
+            SelectedUnit = nil
+
+            UpdateSlots()
+            UpdateWarehouse()
+            return
+        end
+
+        -- 未选择单位时清空卡槽
+        if Slots[i].Unit ~= nil then
+            Slots[i].Unit = nil
+
+            UpdateSlots()
+            UpdateWarehouse()
+        end
+
+        return
+    end
+
+    -- 开始状态：只能召唤
+    SummonUnit(Slots[i].Unit)
+end
+
+--==================================================
 -- 创建8个卡槽
 --==================================================
 
 for i=1,8 do
+
     local card = Button(
         SlotArea,
         "Slot"..i,
@@ -718,87 +827,142 @@ for i=1,8 do
         CooldownText = cooldownText
     }
 
-    --==================================================
-    -- 卡槽点击逻辑
-    --==================================================
-
     card.MouseButton1Click:Connect(function()
+        ActivateSlot(i)
+    end)
+end
 
-        -- 停止状态：允许装备、替换、清空
-        if not Running then
+--==================================================
+-- PC按键设置界面
+--==================================================
 
-            -- 已选择仓库单位：装备或替换
-            if SelectedUnit ~= nil then
+local SettingsPanel
+local KeyButtons = {}
 
-                -- 防止重复装备
-                for slotIndex,slot in ipairs(Slots) do
-                    if slotIndex ~= i
-                    and slot.Unit
-                    and slot.Unit.ID == SelectedUnit.ID then
-                        SelectedUnit = nil
-                        UpdateWarehouse()
-                        return
-                    end
+if IsPC then
+
+    SettingsPanel = Instance.new("Frame")
+    SettingsPanel.Name = "KeySettingsPanel"
+    SettingsPanel.Size = UDim2.new(0,270,0,370)
+    SettingsPanel.Position = UDim2.new(0.5,-135,0.5,-185)
+    SettingsPanel.BackgroundColor3 = Color3.fromRGB(20,20,20)
+    SettingsPanel.BorderSizePixel = 0
+    SettingsPanel.Visible = false
+    SettingsPanel.ZIndex = 200
+    SettingsPanel.Parent = Gui
+    Corner(SettingsPanel,10)
+
+    Label(
+        SettingsPanel,
+        "Title",
+        "卡槽数字键设置",
+        UDim2.new(1,-45,0,40),
+        UDim2.new(0,5,0,5),
+        201
+    )
+
+    local CloseSettings = Button(
+        SettingsPanel,
+        "Close",
+        "X",
+        UDim2.new(0,35,0,30),
+        UDim2.new(1,-40,0,5),
+        205
+    )
+
+    CloseSettings.MouseButton1Click:Connect(function()
+        SettingsPanel.Visible = false
+    end)
+
+    Label(
+        SettingsPanel,
+        "Description",
+        "点击卡槽按钮切换数字键",
+        UDim2.new(1,-20,0,25),
+        UDim2.new(0,10,0,42),
+        201
+    )
+
+    local function RefreshKeyButtons()
+        for i=1,8 do
+            KeyButtons[i].Text =
+                "卡槽 "..i.."     数字键 "..SlotKeys[i]
+        end
+    end
+
+    for i=1,8 do
+        local keyButton = Button(
+            SettingsPanel,
+            "Key"..i,
+            "",
+            UDim2.new(1,-20,0,32),
+            UDim2.new(0,10,0,75+(i-1)*35),
+            202
+        )
+
+        KeyButtons[i] = keyButton
+
+        keyButton.MouseButton1Click:Connect(function()
+
+            local current = SlotKeys[i]
+            local nextKey = current % 8 + 1
+
+            -- 查找是否有其他卡槽使用目标按键
+            local otherSlot
+
+            for j=1,8 do
+                if j ~= i and SlotKeys[j] == nextKey then
+                    otherSlot = j
+                    break
                 end
+            end
 
-                Slots[i].Unit = SelectedUnit
-                SelectedUnit = nil
+            -- 如果重复，自动交换
+            if otherSlot then
+                SlotKeys[otherSlot] = current
+            end
 
-                UpdateSlots()
-                UpdateWarehouse()
+            SlotKeys[i] = nextKey
+
+            RefreshKeyButtons()
+        end)
+    end
+
+    RefreshKeyButtons()
+
+    SettingsButton.MouseButton1Click:Connect(function()
+        SettingsPanel.Visible = not SettingsPanel.Visible
+    end)
+end
+
+--==================================================
+-- PC数字键监听
+--==================================================
+
+if IsPC then
+
+    UserInputService.InputBegan:Connect(function(input,gameProcessed)
+
+        if gameProcessed then return end
+        if UserInputService:GetFocusedTextBox() then return end
+        if not Gui.Parent then return end
+
+        -- 设置窗口打开时不触发召唤
+        if SettingsPanel.Visible then
+            return
+        end
+
+        -- 仓库打开时不触发召唤
+        if Warehouse.Visible then
+            return
+        end
+
+        for i=1,8 do
+            if input.KeyCode == SlotKeyCodes[SlotKeys[i]] then
+                ActivateSlot(i)
                 return
             end
-
-            -- 没有选择仓库单位：清空当前卡槽
-            if Slots[i].Unit ~= nil then
-                Slots[i].Unit = nil
-
-                UpdateSlots()
-                UpdateWarehouse()
-            end
-
-            return
         end
-
-        --==================================================
-        -- 开始状态：只能召唤
-        --==================================================
-
-        local unit = Slots[i].Unit
-
-        if not unit then
-            return
-        end
-
-        if GetRemaining(unit) > 0 then
-            return
-        end
-
-        if Money < unit.Price then
-            return
-        end
-
-        Money -= unit.Price
-        unit.Last = os.clock()
-
-        UpdateMoney()
-        UpdateSlots()
-
-        task.spawn(function()
-            local success,err = pcall(function()
-                Event:InvokeServer(
-                    "Enemy",
-                    unit.ID,
-                    unit.Rank,
-                    unit.Amount,
-                    unit.Args or {}
-                )
-            end)
-
-            if not success then
-                warn("召唤失败：",err)
-            end
-        end)
     end)
 end
 
@@ -807,13 +971,8 @@ end
 --==================================================
 
 UpgradeButton.MouseButton1Click:Connect(function()
-    if not Running then
-        return
-    end
-
-    if Level >= MaxLevel then
-        return
-    end
+    if not Running then return end
+    if Level >= MaxLevel then return end
 
     local cost = UpgradeCosts[Level+1]
 
@@ -829,6 +988,7 @@ end)
 --==================================================
 
 StopButton.MouseButton1Click:Connect(function()
+
     Running = false
     Level = 0
     Money = 600
@@ -848,9 +1008,8 @@ end)
 --==================================================
 
 StartButton.MouseButton1Click:Connect(function()
-    if Running then
-        return
-    end
+
+    if Running then return end
 
     Running = true
     SelectedUnit = nil
@@ -886,6 +1045,7 @@ local HideButton = Button(
 )
 
 HideButton.MouseButton1Click:Connect(function()
+
     Hidden = not Hidden
 
     Bank.Visible = not Hidden
@@ -894,7 +1054,16 @@ HideButton.MouseButton1Click:Connect(function()
     WarehouseButton.Visible = not Hidden
     SlotArea.Visible = not Hidden
 
+    if SettingsButton then
+        SettingsButton.Visible = not Hidden
+    end
+
     Warehouse.Visible = false
+
+    if SettingsPanel then
+        SettingsPanel.Visible = false
+    end
+
     HideButton.Text = Hidden and "显示" or "隐藏"
 end)
 
@@ -936,5 +1105,6 @@ UpdateMoney()
 UpdateSlots()
 UpdateWarehouse()
 
-print("银行 + 仓库系统加载完成")
+print("银行 + 仓库 + PC按键设置加载完成")
 print("单位总数："..#Units)
+print("PC模式："..tostring(IsPC))
