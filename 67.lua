@@ -35,177 +35,58 @@ local UpgradeCosts = {
 local Units = {
 
     -- 普通
-    {
-        Name="真理鹈鹕",
-        ID=151,Rank="B",Amount=8,
-        Price=20000,Cooldown=200,
-        Image=102009551876604,
-        Category="普通"
-    },
-
-    {
-        Name="棍子",
-        ID=109,Rank="B",Amount=8,
-        Price=10000,Cooldown=100,
-        Image=81963847967960,
-        Category="普通"
-    },
-
-    {
-        Name="黑暗轰炸机战士",
-        ID=22,Rank="B",Amount=4,
-        Price=1000,Cooldown=25,
-        Image=93022672755160,
-        Category="普通"
-    },
-
-    {
-        Name="魔法生成器",
-        ID=24,Rank="B",Amount=4,
-        Price=1600,Cooldown=50,
-        Image=101930259026845,
-        Category="普通"
-    },
+    {Name="真理鹈鹕",ID=151,Rank="B",Amount=8,Price=20000,Cooldown=200,Image=102009551876604,Category="普通"},
+    {Name="棍子",ID=109,Rank="B",Amount=8,Price=10000,Cooldown=100,Image=81963847967960,Category="普通"},
+    {Name="黑暗轰炸机战士",ID=22,Rank="B",Amount=4,Price=1000,Cooldown=25,Image=93022672755160,Category="普通"},
+    {Name="魔法生成器",ID=24,Rank="B",Amount=4,Price=1600,Cooldown=50,Image=101930259026845,Category="普通"},
 
     -- 僵尸
-    {
-        Name="保持微笑",
-        ID=144,Rank="A",Amount=2,
-        Price=1000,Cooldown=35,
-        Image=134391460910247,
-        Category="僵尸"
-    },
-
-    {
-        Name="披萨",
-        ID=136,Rank="A",Amount=2,
-        Price=500,Cooldown=50,
-        Image=76810868926793,
-        Category="僵尸"
-    },
-
-    {
-        Name="保护僵尸",
-        ID=135,Rank="A",Amount=2,
-        Price=900,Cooldown=70,
-        Image=117471233334728,
-        Category="僵尸"
-    },
+    {Name="保持微笑",ID=144,Rank="A",Amount=2,Price=1000,Cooldown=35,Image=134391460910247,Category="僵尸"},
+    {Name="披萨",ID=136,Rank="A",Amount=2,Price=500,Cooldown=50,Image=76810868926793,Category="僵尸"},
+    {Name="保护僵尸",ID=135,Rank="A",Amount=2,Price=900,Cooldown=70,Image=117471233334728,Category="僵尸"},
 
     -- 天使
-    {
-        Name="诺曼",
-        ID=104,Rank="B",Amount=2,
-        Price=800,Cooldown=60,
-        Image=76163313488934,
-        Category="天使"
-    },
-
-    {
-        Name="审判",
-        ID=115,Rank="B",Amount=6,
-        Price=2000,Cooldown=50,
-        Image=76008989733506,
-        Category="天使"
-    },
+    {Name="诺曼",ID=104,Rank="B",Amount=2,Price=800,Cooldown=60,Image=76163313488934,Category="天使"},
+    {Name="审判",ID=115,Rank="B",Amount=6,Price=2000,Cooldown=50,Image=76008989733506,Category="天使"},
 
     -- 死亡
-    {
-        Name="McBlast",
-        ID=116,Rank="B",Amount=4,
-        Price=300,Cooldown=30,
-        Image=83665706736688,
-        Category="死亡"
-    },
+    {Name="McBlast",ID=116,Rank="B",Amount=4,Price=300,Cooldown=30,Image=83665706736688,Category="死亡"},
+    {Name="粉碎机",ID=121,Rank="B",Amount=4,Price=8000,Cooldown=800,Image=132780898159572,Category="死亡"},
+    {Name="极限",ID=72,Rank="B",Amount=4,Price=20000,Cooldown=500,Image=90530027731674,Category="死亡"},
+    {Name="巨魔袭击",ID=105,Rank="B",Amount=4,Price=200,Cooldown=25,Image=119281801828499,Category="死亡"},
+    {Name="束缚状态",ID=69,Rank="B",Amount=4,Price=1200,Cooldown=20,Image=90355776344408,Category="死亡"},
+
+    -- 新增死亡单位
+    {Name="双黑暗之心",ID=54,Rank="B",Amount=10,Price=300,Cooldown=10,Image=90816086906198,Category="死亡"},
+
+    {Name="贝蒂",ID=56,Rank="B",Amount=10,Price=300,Cooldown=15,Image=112152174802483,Category="死亡"},
+
+    {Name="血角",ID=65,Rank="B",Amount=10,Price=800,Cooldown=20,Image=73907201693668,Category="死亡"},
 
     {
-        Name="粉碎机",
-        ID=121,Rank="B",Amount=4,
-        Price=8000,Cooldown=800,
-        Image=132780898159572,
-        Category="死亡"
+        Name="原子",
+        ID=118,
+        Rank="B",
+        Amount=10,
+        Price=500,
+        Cooldown=20,
+        Image=72643510567320,
+        Category="死亡",
+        Args={
+            Health=50
+        }
     },
 
-    {
-        Name="极限",
-        ID=72,Rank="B",Amount=4,
-        Price=20000,Cooldown=500,
-        Image=90530027731674,
-        Category="死亡"
-    },
-
-    {
-        Name="巨魔袭击",
-        ID=105,Rank="B",Amount=4,
-        Price=200,Cooldown=25,
-        Image=119281801828499,
-        Category="死亡"
-    },
-
-    {
-        Name="束缚状态",
-        ID=69,Rank="B",Amount=4,
-        Price=1200,Cooldown=20,
-        Image=90355776344408,
-        Category="死亡"
-    },
+    {Name="顶级",ID=94,Rank="B",Amount=10,Price=1000,Cooldown=25,Image=103544184383951,Category="死亡"},
 
     -- 地狱
-    {
-        Name="地狱",
-        ID=39,Rank="B",Amount=8,
-        Price=2000,Cooldown=50,
-        Image=113366045982105,
-        Category="地狱"
-    },
-
-    {
-        Name="天才",
-        ID=89,Rank="B",Amount=4,
-        Price=1200,Cooldown=60,
-        Image=139624564209954,
-        Category="地狱"
-    },
-
-    {
-        Name="疯狂化学家",
-        ID=60,Rank="B",Amount=4,
-        Price=3000,Cooldown=100,
-        Image=134686338431581,
-        Category="地狱"
-    },
-
-    {
-        Name="Speeddemon",
-        ID=150,Rank="B",Amount=4,
-        Price=2400,Cooldown=70,
-        Image=73440841269995,
-        Category="地狱"
-    },
-
-    {
-        Name="盾牌战士",
-        ID=29,Rank="B",Amount=4,
-        Price=300,Cooldown=30,
-        Image=87500073270346,
-        Category="地狱"
-    },
-
-    {
-        Name="吉他英雄",
-        ID=35,Rank="B",Amount=4,
-        Price=2000,Cooldown=100,
-        Image=117913123207840,
-        Category="地狱"
-    },
-
-    {
-        Name="地狱火",
-        ID=40,Rank="B",Amount=4,
-        Price=12000,Cooldown=500,
-        Image=95516325060350,
-        Category="地狱"
-    }
+    {Name="地狱",ID=39,Rank="B",Amount=8,Price=2000,Cooldown=50,Image=113366045982105,Category="地狱"},
+    {Name="天才",ID=89,Rank="B",Amount=4,Price=1200,Cooldown=60,Image=139624564209954,Category="地狱"},
+    {Name="疯狂化学家",ID=60,Rank="B",Amount=4,Price=3000,Cooldown=100,Image=134686338431581,Category="地狱"},
+    {Name="Speeddemon",ID=150,Rank="B",Amount=4,Price=2400,Cooldown=70,Image=73440841269995,Category="地狱"},
+    {Name="盾牌战士",ID=29,Rank="B",Amount=4,Price=300,Cooldown=30,Image=87500073270346,Category="地狱"},
+    {Name="吉他英雄",ID=35,Rank="B",Amount=4,Price=2000,Cooldown=100,Image=117913123207840,Category="地狱"},
+    {Name="地狱火",ID=40,Rank="B",Amount=4,Price=12000,Cooldown=500,Image=95516325060350,Category="地狱"}
 }
 
 --==================================================
@@ -335,7 +216,7 @@ local WarehouseButton = Button(Gui,"WarehouseButton","仓库",
     UDim2.new(1,-95,0,90))
 
 --==================================================
--- 卡槽区域
+-- 8个装备卡槽
 --==================================================
 
 local SlotArea = Instance.new("Frame")
@@ -407,7 +288,7 @@ local function UpdateSlots()
 end
 
 --==================================================
--- 仓库主界面
+-- 仓库界面
 --==================================================
 
 local Warehouse = Instance.new("Frame")
@@ -421,7 +302,6 @@ Warehouse.ZIndex = 120
 Warehouse.Parent = Gui
 Corner(Warehouse,10)
 
--- 整体缩放
 local WarehouseScale = Instance.new("UIScale")
 WarehouseScale.Scale = 1
 WarehouseScale.Parent = Warehouse
@@ -430,7 +310,6 @@ Label(Warehouse,"Title","单位仓库",
     UDim2.new(0.7,0,0,35),
     UDim2.new(0,5,0,3),121)
 
--- 关闭按钮
 local CloseButton = Button(Warehouse,"Close","X",
     UDim2.new(0,35,0,30),
     UDim2.new(1,-42,0,5),130)
@@ -444,7 +323,7 @@ WarehouseButton.MouseButton1Click:Connect(function()
 end)
 
 --==================================================
--- 仓库缩小 / 放大
+-- 仓库缩放
 --==================================================
 
 local ScaleButton = Button(Warehouse,"ScaleButton","−",
@@ -466,7 +345,7 @@ ScaleButton.MouseButton1Click:Connect(function()
 end)
 
 --==================================================
--- 仓库拖拽
+-- 仓库拖拽（鼠标 + 手机触摸）
 --==================================================
 
 local DragBar = Instance.new("TextButton")
@@ -525,7 +404,7 @@ UserInputService.InputEnded:Connect(function(input)
 end)
 
 --==================================================
--- 仓库分类
+-- 分类筛选
 --==================================================
 
 local Categories = {
@@ -569,7 +448,7 @@ local RankB = Button(RankFrame,"RankB","B",
     UDim2.new(0.5,3,0,0),122)
 
 --==================================================
--- 仓库滚动列表
+-- 仓库单位列表
 --==================================================
 
 local Scroll = Instance.new("ScrollingFrame")
@@ -591,7 +470,6 @@ WarehouseGrid.CellPadding = UDim2.new(0,7,0,7)
 WarehouseGrid.SortOrder = Enum.SortOrder.LayoutOrder
 WarehouseGrid.Parent = Scroll
 
--- 空列表提示
 local EmptyLabel = Label(
     Warehouse,
     "Empty",
@@ -604,12 +482,12 @@ local EmptyLabel = Label(
 EmptyLabel.Visible = false
 
 --==================================================
--- 检查单位是否已经装备
+-- 检查单位是否已装备
 --==================================================
 
 local function IsUnitEquipped(unit)
     for _,slot in ipairs(Slots) do
-        if slot.Unit == unit then
+        if slot.Unit and slot.Unit.ID == unit.ID then
             return true
         end
     end
@@ -666,7 +544,6 @@ local function UpdateWarehouse()
             icon.Parent = card
             Corner(icon,8)
 
-            -- 已装备单位显示灰色遮罩
             if equipped then
                 card.BackgroundColor3 =
                     Color3.fromRGB(65,65,65)
@@ -680,7 +557,7 @@ local function UpdateWarehouse()
                 mask.Parent = card
                 Corner(mask,8)
 
-                local mark = Label(
+                Label(
                     mask,
                     "Equipped",
                     "已装备",
@@ -699,7 +576,7 @@ local function UpdateWarehouse()
 
             card.MouseButton1Click:Connect(function()
 
-                -- 已经在任意卡槽中：禁止选择
+                -- 已装备单位不能重复选择
                 if IsUnitEquipped(unit) then
                     SelectedUnit = nil
                     UpdateWarehouse()
@@ -754,7 +631,7 @@ CategoryButtons["全部"].BackgroundColor3 =
     Color3.fromRGB(40,130,70)
 
 --==================================================
--- A / B 等级筛选
+-- A / B 筛选
 --==================================================
 
 RankA.MouseButton1Click:Connect(function()
@@ -870,28 +747,30 @@ for i=1,8 do
     }
 
     --==================================================
-    -- 卡槽互动
+    -- 卡槽点击
     --==================================================
 
     card.MouseButton1Click:Connect(function()
 
-        -- 有选中单位：装备或替换
+        -- 装备或替换
         if SelectedUnit ~= nil then
 
             if Running then
                 return
             end
 
-            -- 目标卡槽已经是这个单位，不重复操作
             if Slots[i].Unit == SelectedUnit then
                 SelectedUnit = nil
                 UpdateWarehouse()
                 return
             end
 
-            -- 检查其他卡槽，防止重复装备
+            -- 检查其他卡槽是否已经装备相同ID
             for slotIndex,slot in ipairs(Slots) do
-                if slotIndex ~= i and slot.Unit == SelectedUnit then
+                if slotIndex ~= i
+                and slot.Unit
+                and slot.Unit.ID == SelectedUnit.ID then
+
                     SelectedUnit = nil
                     UpdateWarehouse()
                     return
@@ -907,7 +786,7 @@ for i=1,8 do
             return
         end
 
-        -- 没有选中单位：召唤
+        -- 召唤
         if not Running then
             return
         end
@@ -941,7 +820,7 @@ for i=1,8 do
                     unit.ID,
                     unit.Rank,
                     unit.Amount,
-                    {}
+                    unit.Args or {}
                 )
 
             end)
