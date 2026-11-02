@@ -16,7 +16,6 @@ local Event = ReplicatedStorage.Events.RemoteFunction.SandboxSpawn
 
 local Money = 600
 local Level = 0
-
 local MaxMoney = 22500
 local MaxLevel = 9
 
@@ -58,9 +57,7 @@ local Units = {
 
     -- 新增死亡单位
     {Name="双黑暗之心",ID=54,Rank="B",Amount=10,Price=300,Cooldown=10,Image=90816086906198,Category="死亡"},
-
     {Name="贝蒂",ID=56,Rank="B",Amount=10,Price=300,Cooldown=15,Image=112152174802483,Category="死亡"},
-
     {Name="血角",ID=65,Rank="B",Amount=10,Price=800,Cooldown=20,Image=73907201693668,Category="死亡"},
 
     {
@@ -72,9 +69,7 @@ local Units = {
         Cooldown=20,
         Image=72643510567320,
         Category="死亡",
-        Args={
-            Health=50
-        }
+        Args={Health=50}
     },
 
     {Name="顶级",ID=94,Rank="B",Amount=10,Price=1000,Cooldown=25,Image=103544184383951,Category="死亡"},
@@ -94,15 +89,12 @@ local Units = {
 --==================================================
 
 local Slots = {}
-
-for i=1,8 do
-    Slots[i] = {
-        Unit=nil
-    }
-end
-
 local SlotCards = {}
 local WarehouseCards = {}
+
+for i=1,8 do
+    Slots[i] = {Unit=nil}
+end
 
 --==================================================
 -- GUI
@@ -200,7 +192,7 @@ local function UpdateMoney()
 end
 
 --==================================================
--- 开始 / 停止按钮
+-- 主按钮
 --==================================================
 
 local StartButton = Button(Gui,"Start","开始",
@@ -216,7 +208,7 @@ local WarehouseButton = Button(Gui,"WarehouseButton","仓库",
     UDim2.new(1,-95,0,90))
 
 --==================================================
--- 8个装备卡槽
+-- 卡槽区域
 --==================================================
 
 local SlotArea = Instance.new("Frame")
@@ -268,12 +260,10 @@ local function UpdateSlots()
 
             if remaining > 0 then
                 data.CooldownMask.Visible = true
-
                 data.CooldownFill.Size = UDim2.new(
                     1,0,
                     remaining/unit.Cooldown,0
                 )
-
                 data.CooldownText.Text =
                     tostring(math.ceil(remaining))
             else
@@ -345,7 +335,7 @@ ScaleButton.MouseButton1Click:Connect(function()
 end)
 
 --==================================================
--- 仓库拖拽（鼠标 + 手机触摸）
+-- 仓库拖拽
 --==================================================
 
 local DragBar = Instance.new("TextButton")
@@ -367,7 +357,6 @@ local DragInput = nil
 DragBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1
     or input.UserInputType == Enum.UserInputType.Touch then
-
         Dragging = true
         DragStart = input.Position
         StartPosition = Warehouse.Position
@@ -382,7 +371,6 @@ UserInputService.InputChanged:Connect(function(input)
 
     if input.UserInputType == Enum.UserInputType.MouseMovement
     or input.UserInputType == Enum.UserInputType.Touch then
-
         local delta = input.Position-DragStart
 
         Warehouse.Position = UDim2.new(
@@ -397,7 +385,6 @@ end)
 UserInputService.InputEnded:Connect(function(input)
     if input == DragInput
     or input.UserInputType == Enum.UserInputType.MouseButton1 then
-
         Dragging = false
         DragInput = nil
     end
@@ -448,7 +435,7 @@ local RankB = Button(RankFrame,"RankB","B",
     UDim2.new(0.5,3,0,0),122)
 
 --==================================================
--- 仓库单位列表
+-- 仓库列表
 --==================================================
 
 local Scroll = Instance.new("ScrollingFrame")
@@ -500,7 +487,6 @@ end
 --==================================================
 
 local function UpdateWarehouse()
-
     for _,card in ipairs(WarehouseCards) do
         card:Destroy()
     end
@@ -510,7 +496,6 @@ local function UpdateWarehouse()
     local count = 0
 
     for _,unit in ipairs(Units) do
-
         local categoryMatch =
             CurrentCategory == "全部"
             or unit.Category == CurrentCategory
@@ -520,7 +505,6 @@ local function UpdateWarehouse()
             or unit.Rank == CurrentRank
 
         if categoryMatch and rankMatch then
-
             count += 1
 
             local equipped = IsUnitEquipped(unit)
@@ -545,8 +529,7 @@ local function UpdateWarehouse()
             Corner(icon,8)
 
             if equipped then
-                card.BackgroundColor3 =
-                    Color3.fromRGB(65,65,65)
+                card.BackgroundColor3 = Color3.fromRGB(65,65,65)
 
                 local mask = Instance.new("Frame")
                 mask.Size = UDim2.new(1,0,1,0)
@@ -575,8 +558,6 @@ local function UpdateWarehouse()
             end
 
             card.MouseButton1Click:Connect(function()
-
-                -- 已装备单位不能重复选择
                 if IsUnitEquipped(unit) then
                     SelectedUnit = nil
                     UpdateWarehouse()
@@ -600,7 +581,6 @@ end
 --==================================================
 
 for _,category in ipairs(Categories) do
-
     local button = Button(
         CategoryFrame,
         category,
@@ -613,7 +593,6 @@ for _,category in ipairs(Categories) do
     CategoryButtons[category] = button
 
     button.MouseButton1Click:Connect(function()
-
         CurrentCategory = category
 
         for name,other in pairs(CategoryButtons) do
@@ -635,33 +614,27 @@ CategoryButtons["全部"].BackgroundColor3 =
 --==================================================
 
 RankA.MouseButton1Click:Connect(function()
-
-    CurrentRank =
-        CurrentRank == "A" and "全部" or "A"
+    CurrentRank = CurrentRank == "A" and "全部" or "A"
 
     RankA.BackgroundColor3 =
         CurrentRank == "A"
         and Color3.fromRGB(40,130,70)
         or Color3.fromRGB(45,45,45)
 
-    RankB.BackgroundColor3 =
-        Color3.fromRGB(45,45,45)
+    RankB.BackgroundColor3 = Color3.fromRGB(45,45,45)
 
     UpdateWarehouse()
 end)
 
 RankB.MouseButton1Click:Connect(function()
-
-    CurrentRank =
-        CurrentRank == "B" and "全部" or "B"
+    CurrentRank = CurrentRank == "B" and "全部" or "B"
 
     RankB.BackgroundColor3 =
         CurrentRank == "B"
         and Color3.fromRGB(40,130,70)
         or Color3.fromRGB(45,45,45)
 
-    RankA.BackgroundColor3 =
-        Color3.fromRGB(45,45,45)
+    RankA.BackgroundColor3 = Color3.fromRGB(45,45,45)
 
     UpdateWarehouse()
 end)
@@ -671,7 +644,6 @@ end)
 --==================================================
 
 for i=1,8 do
-
     local card = Button(
         SlotArea,
         "Slot"..i,
@@ -746,15 +718,11 @@ for i=1,8 do
         CooldownText = cooldownText
     }
 
-    --==================================================
     -- 卡槽点击
-    --==================================================
-
     card.MouseButton1Click:Connect(function()
 
         -- 装备或替换
         if SelectedUnit ~= nil then
-
             if Running then
                 return
             end
@@ -765,12 +733,10 @@ for i=1,8 do
                 return
             end
 
-            -- 检查其他卡槽是否已经装备相同ID
             for slotIndex,slot in ipairs(Slots) do
                 if slotIndex ~= i
                 and slot.Unit
                 and slot.Unit.ID == SelectedUnit.ID then
-
                     SelectedUnit = nil
                     UpdateWarehouse()
                     return
@@ -782,7 +748,6 @@ for i=1,8 do
 
             UpdateSlots()
             UpdateWarehouse()
-
             return
         end
 
@@ -812,9 +777,7 @@ for i=1,8 do
         UpdateSlots()
 
         task.spawn(function()
-
             local success,err = pcall(function()
-
                 Event:InvokeServer(
                     "Enemy",
                     unit.ID,
@@ -822,15 +785,12 @@ for i=1,8 do
                     unit.Amount,
                     unit.Args or {}
                 )
-
             end)
 
             if not success then
                 warn("召唤失败：",err)
             end
-
         end)
-
     end)
 end
 
@@ -839,7 +799,6 @@ end
 --==================================================
 
 UpgradeButton.MouseButton1Click:Connect(function()
-
     if not Running then
         return
     end
@@ -862,7 +821,6 @@ end)
 --==================================================
 
 StopButton.MouseButton1Click:Connect(function()
-
     Running = false
     Level = 0
     Money = 600
@@ -882,15 +840,20 @@ end)
 --==================================================
 
 StartButton.MouseButton1Click:Connect(function()
-
     if Running then
         return
     end
 
     Running = true
 
+    -- 所有单位开始时冷却归零
+    -- 只有粉碎机进入完整冷却
     for _,unit in ipairs(Units) do
-        unit.Last = os.clock()
+        if unit.Name == "粉碎机" then
+            unit.Last = os.clock()
+        else
+            unit.Last = nil
+        end
     end
 
     UpdateMoney()
@@ -924,7 +887,6 @@ local MainUI = {
 }
 
 HideButton.MouseButton1Click:Connect(function()
-
     Hidden = not Hidden
 
     for _,obj in ipairs(MainUI) do
@@ -932,9 +894,7 @@ HideButton.MouseButton1Click:Connect(function()
     end
 
     Warehouse.Visible = false
-
-    HideButton.Text =
-        Hidden and "显示" or "隐藏"
+    HideButton.Text = Hidden and "显示" or "隐藏"
 end)
 
 --==================================================
@@ -942,13 +902,10 @@ end)
 --==================================================
 
 task.spawn(function()
-
     while Gui.Parent do
-
         task.wait(0.1)
 
         if Running then
-
             Money = math.min(
                 MaxMoney,
                 Money + 1 + Level*10
@@ -964,7 +921,6 @@ end)
 --==================================================
 
 task.spawn(function()
-
     while Gui.Parent do
         UpdateSlots()
         task.wait(0.1)
