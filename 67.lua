@@ -1,5 +1,5 @@
 --==================================================
--- 银行 + 仓库 + 8个装备卡槽
+-- 银行 + 仓库 + 8个装备卡槽 + 三星级系统
 -- LocalScript
 --==================================================
 
@@ -29,6 +29,47 @@ local UpgradeCosts = {
 }
 
 --==================================================
+-- 星级系统
+--==================================================
+
+local StarLevel = 1
+
+local StarMultipliers = {
+    [1] = 1,
+    [2] = 2,
+    [3] = 3
+}
+
+local StarButtons = {}
+
+local function GetUnitPrice(unit)
+    return math.floor(
+        unit.Price * StarMultipliers[StarLevel]
+    )
+end
+
+local function UpdateStars()
+    for i,button in ipairs(StarButtons) do
+        button.AutoButtonColor = not Running
+        button.Active = not Running
+
+        if i == StarLevel then
+            button.BackgroundTransparency = 0
+            button.BorderSizePixel = 2
+        else
+            button.BackgroundTransparency = 0.45
+            button.BorderSizePixel = 0
+        end
+
+        if Running then
+            button.TextTransparency = 0.35
+        else
+            button.TextTransparency = 0
+        end
+    end
+end
+
+--==================================================
 -- 按键设置
 --==================================================
 
@@ -50,7 +91,6 @@ local SlotKeyCodes = {
 --==================================================
 
 local Units = {
-
     -- 普通
     {Name="真理鹈鹕",ID=151,Rank="B",Amount=8,Price=20000,Cooldown=200,Image=102009551876604,Category="普通"},
     {Name="棍子",ID=109,Rank="B",Amount=8,Price=10000,Cooldown=100,Image=81963847967960,Category="普通"},
@@ -215,6 +255,58 @@ local WarehouseButton = Button(Gui,"WarehouseButton","仓库",
     UDim2.new(0,85,0,38),
     UDim2.new(1,-95,0,90))
 
+--==================================================
+-- 星级按钮：左上角
+--==================================================
+
+local StarFrame = Instance.new("Frame")
+StarFrame.Name = "StarSelector"
+StarFrame.Size = UDim2.new(0,180,0,42)
+StarFrame.Position = UDim2.new(0,15,0,10)
+StarFrame.BackgroundTransparency = 1
+StarFrame.ZIndex = 500
+StarFrame.Parent = Gui
+
+local StarLayout = Instance.new("UIGridLayout")
+StarLayout.CellSize = UDim2.new(0,52,0,38)
+StarLayout.CellPadding = UDim2.new(0,5,0,0)
+StarLayout.FillDirection = Enum.FillDirection.Horizontal
+StarLayout.Parent = StarFrame
+
+local StarColors = {
+    Color3.fromRGB(0,190,255),
+    Color3.fromRGB(255,160,0),
+    Color3.fromRGB(255,45,45)
+}
+
+for i=1,3 do
+    local button = Button(
+        StarFrame,
+        "Star"..i,
+        string.rep("★",i),
+        UDim2.new(0,52,0,38),
+        UDim2.new(0,0,0,0),
+        501
+    )
+
+    button.BackgroundColor3 = StarColors[i]
+    button.TextColor3 = Color3.new(1,1,1)
+
+    StarButtons[i] = button
+
+    button.MouseButton1Click:Connect(function()
+        if Running then return end
+
+        StarLevel = i
+        UpdateStars()
+        UpdateSlots()
+    end)
+end
+
+--==================================================
+-- PC按键设置按钮
+--==================================================
+
 local SettingsButton
 
 if IsPC then
@@ -224,7 +316,7 @@ if IsPC then
 end
 
 --==================================================
--- 卡槽区域
+-- 卡槽区域：4列2行
 --==================================================
 
 local SlotArea = Instance.new("Frame")
@@ -266,7 +358,7 @@ local function UpdateSlots()
             data.Icon.Visible = true
             data.NameText.Text = unit.Name
             data.NameText.Visible = true
-            data.PriceText.Text = "$"..unit.Price
+            data.PriceText.Text = "$"..GetUnitPrice(unit)
             data.PriceText.Visible = true
 
             local remaining = GetRemaining(unit)
@@ -623,9 +715,12 @@ end)
 local function SummonUnit(unit)
     if not Running or not unit then return end
     if GetRemaining(unit) > 0 then return end
-    if Money < unit.Price then return end
 
-    Money -= unit.Price
+    local summonPrice = GetUnitPrice(unit)
+
+    if Money < summonPrice then return end
+
+    Money -= summonPrice
     unit.Last = os.clock()
 
     UpdateMoney()
@@ -692,22 +787,30 @@ for i=1,8 do
         UDim2.new(0,0,0,0),101)
 
     card.LayoutOrder = i
+    card.BackgroundColor3 = Color3.fromRGB(20,35,50)
+
+    -- 青蓝色边框
+    local border = Instance.new("UIStroke")
+    border.Color = Color3.fromRGB(0,190,220)
+    border.Thickness = 2
+    border.Parent = card
 
     local icon = Instance.new("ImageLabel")
     icon.Name = "Icon"
     icon.Size = UDim2.new(1,0,1,0)
     icon.BackgroundTransparency = 1
-    icon.ScaleType = Enum.ScaleType.Fit
+    icon.ScaleType = Enum.ScaleType.Crop
     icon.Visible = false
     icon.ZIndex = 102
     icon.Parent = card
     Corner(icon,7)
 
     local nameText = Label(card,"NameText","",
-        UDim2.new(1,0,0,16),
+        UDim2.new(1,0,0,15),
         UDim2.new(0,0,0,0),107)
     nameText.BackgroundColor3 = Color3.fromRGB(0,0,0)
-    nameText.BackgroundTransparency = 0.3
+    nameText.BackgroundTransparency = 0.25
+    nameText.TextColor3 = Color3.new(1,1,1)
     nameText.Visible = false
 
     local priceText = Instance.new("TextLabel")
@@ -715,8 +818,9 @@ for i=1,8 do
     priceText.Size = UDim2.new(1,0,0,18)
     priceText.Position = UDim2.new(0,0,1,-18)
     priceText.BackgroundColor3 = Color3.fromRGB(0,0,0)
-    priceText.BackgroundTransparency = 0.25
-    priceText.TextColor3 = Color3.new(1,1,1)
+    priceText.BackgroundTransparency = 0.2
+    priceText.TextColor3 = Color3.fromRGB(255,190,35)
+    priceText.TextStrokeTransparency = 0
     priceText.TextScaled = true
     priceText.Font = Enum.Font.GothamBold
     priceText.ZIndex = 107
@@ -896,6 +1000,7 @@ StopButton.MouseButton1Click:Connect(function()
     UpdateMoney()
     UpdateSlots()
     UpdateWarehouse()
+    UpdateStars()
 end)
 
 --==================================================
@@ -919,6 +1024,7 @@ StartButton.MouseButton1Click:Connect(function()
     UpdateMoney()
     UpdateSlots()
     UpdateWarehouse()
+    UpdateStars()
 end)
 
 --==================================================
@@ -939,6 +1045,7 @@ HideButton.MouseButton1Click:Connect(function()
     StopButton.Visible = not Hidden
     WarehouseButton.Visible = not Hidden
     SlotArea.Visible = not Hidden
+    StarFrame.Visible = not Hidden
 
     if SettingsButton then
         SettingsButton.Visible = not Hidden
@@ -990,6 +1097,8 @@ end)
 UpdateMoney()
 UpdateSlots()
 UpdateWarehouse()
+UpdateStars()
 
-print("银行 + 仓库 + 8卡槽加载完成")
+print("银行 + 仓库 + 8卡槽 + 星级系统加载完成")
 print("单位总数："..#Units)
+       
