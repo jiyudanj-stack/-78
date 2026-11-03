@@ -261,15 +261,15 @@ local WarehouseButton = Button(Gui,"WarehouseButton","仓库",
 
 local StarFrame = Instance.new("Frame")
 StarFrame.Name = "StarSelector"
-StarFrame.Size = UDim2.new(0,180,0,42)
-StarFrame.Position = UDim2.new(0,15,0,10)
+StarFrame.Size = UDim2.new(0,150,0,32)
+StarFrame.Position = UDim2.new(1,-205,0,5)
 StarFrame.BackgroundTransparency = 1
 StarFrame.ZIndex = 500
 StarFrame.Parent = Gui
 
 local StarLayout = Instance.new("UIGridLayout")
-StarLayout.CellSize = UDim2.new(0,52,0,38)
-StarLayout.CellPadding = UDim2.new(0,5,0,0)
+StarLayout.CellSize = UDim2.new(0,46,0,28)
+StarLayout.CellPadding = UDim2.new(0,3,0,0)
 StarLayout.FillDirection = Enum.FillDirection.Horizontal
 StarLayout.Parent = StarFrame
 
@@ -284,7 +284,7 @@ for i=1,3 do
         StarFrame,
         "Star"..i,
         string.rep("★",i),
-        UDim2.new(0,52,0,38),
+        UDim2.new(0,46,0,28),
         UDim2.new(0,0,0,0),
         501
     )
@@ -298,6 +298,9 @@ for i=1,3 do
         if Running then return end
 
         StarLevel = i
+        MaxMoney = (StarLevel == 3) and 33500 or 22500
+        Money = math.min(Money, MaxMoney)
+        UpdateMoney()
         UpdateStars()
         UpdateSlots()
     end)
@@ -396,14 +399,14 @@ Warehouse.Visible = false
 Warehouse.ZIndex = 120
 Warehouse.Parent = Gui
 Corner(Warehouse,10)
+StarFrame.Parent = Warehouse
+Label(Warehouse,"Title","单位仓库",
+    UDim2.new(0.42,0,0,35),
+    UDim2.new(0,5,0,3),121)
 
 local WarehouseScale = Instance.new("UIScale")
 WarehouseScale.Scale = 1
 WarehouseScale.Parent = Warehouse
-
-Label(Warehouse,"Title","单位仓库",
-    UDim2.new(0.7,0,0,35),
-    UDim2.new(0,5,0,3),121)
 
 local CloseButton = Button(Warehouse,"Close","X",
     UDim2.new(0,35,0,30),
@@ -416,6 +419,49 @@ end)
 WarehouseButton.MouseButton1Click:Connect(function()
     Warehouse.Visible = not Warehouse.Visible
 end)
+
+--==================================================
+-- 更新日志按钮与窗口
+--==================================================
+
+local UpdateLogButton = Button(Gui,"UpdateLogButton","更新日志",
+    UDim2.new(0,85,0,35),
+    UDim2.new(1,-95,0,180),1000)
+
+local UpdateLogFrame = Instance.new("Frame")
+UpdateLogFrame.Name = "UpdateLogFrame"
+UpdateLogFrame.Size = UDim2.new(0,300,0,250)
+UpdateLogFrame.Position = UDim2.new(0.5,-150,0.5,-125)
+UpdateLogFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+UpdateLogFrame.BorderSizePixel = 0
+UpdateLogFrame.Visible = false
+UpdateLogFrame.ZIndex = 2000
+UpdateLogFrame.Parent = Gui
+Corner(UpdateLogFrame,10)
+
+Label(UpdateLogFrame,"Title","更新日志",
+    UDim2.new(1,-50,0,35),
+    UDim2.new(0,8,0,5),2001)
+
+local UpdateLogClose = Button(UpdateLogFrame,"Close","X",
+    UDim2.new(0,35,0,30),
+    UDim2.new(1,-40,0,5),2002)
+
+local UpdateLogText = Label(UpdateLogFrame,"Content",
+    "当前版本更新\\n\\n1. 星级选择移动至仓库右上角\\n2. 一星价格倍率：×1\\n3. 二星价格倍率：×2\\n4. 三星价格倍率：×3\\n5. 三星资金上限提高至 33500\\n6. 新增更新日志窗口",
+    UDim2.new(1,-20,1,-50),
+    UDim2.new(0,10,0,42),2001)
+UpdateLogText.TextWrapped = true
+UpdateLogText.TextYAlignment = Enum.TextYAlignment.Top
+
+UpdateLogButton.MouseButton1Click:Connect(function()
+    UpdateLogFrame.Visible = not UpdateLogFrame.Visible
+end)
+
+UpdateLogClose.MouseButton1Click:Connect(function()
+    UpdateLogFrame.Visible = false
+end)
+
 
 --==================================================
 -- 仓库缩放
@@ -1045,13 +1091,14 @@ HideButton.MouseButton1Click:Connect(function()
     StopButton.Visible = not Hidden
     WarehouseButton.Visible = not Hidden
     SlotArea.Visible = not Hidden
-    StarFrame.Visible = not Hidden
 
     if SettingsButton then
         SettingsButton.Visible = not Hidden
     end
 
     Warehouse.Visible = false
+    UpdateLogFrame.Visible = false
+    UpdateLogButton.Visible = not Hidden
 
     if SettingsPanel then
         SettingsPanel.Visible = false
@@ -1101,4 +1148,3 @@ UpdateStars()
 
 print("银行 + 仓库 + 8卡槽 + 星级系统加载完成")
 print("单位总数："..#Units)
-       
