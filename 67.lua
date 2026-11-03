@@ -1,5 +1,5 @@
 --==================================================
--- 银行 + 仓库 + 8个装备卡槽 + PC数字键设置
+-- 银行 + 仓库 + 8个装备卡槽
 -- LocalScript
 --==================================================
 
@@ -21,9 +21,7 @@ local Money = 600
 local Level = 0
 local MaxMoney = 22500
 local MaxLevel = 9
-
 local Running = true
-local SelectedUnit = nil
 
 local UpgradeCosts = {
     440,880,1320,1760,2200,
@@ -31,7 +29,7 @@ local UpgradeCosts = {
 }
 
 --==================================================
--- PC按键设置
+-- 按键设置
 --==================================================
 
 local SlotKeys = {1,2,3,4,5,6,7,8}
@@ -60,13 +58,15 @@ local Units = {
     {Name="魔法生成器",ID=24,Rank="B",Amount=4,Price=1600,Cooldown=50,Image=101930259026845,Category="普通"},
 
     -- 僵尸
-    {Name="保持微笑",ID=144,Rank="A",Amount=2,Price=1000,Cooldown=35,Image=134391460910247,Category="僵尸"},
+    {Name="保持微笑",ID=144,Rank="A",Amount=2,Price=1000,Cooldown=35,Image=134391460910247,Category="僵尸",Args={Health=600}},
     {Name="披萨",ID=136,Rank="A",Amount=2,Price=500,Cooldown=50,Image=76810868926793,Category="僵尸"},
     {Name="保护僵尸",ID=135,Rank="A",Amount=2,Price=900,Cooldown=70,Image=117471233334728,Category="僵尸"},
 
     -- 天使
     {Name="诺曼",ID=104,Rank="B",Amount=2,Price=800,Cooldown=60,Image=76163313488934,Category="天使"},
     {Name="审判",ID=115,Rank="B",Amount=6,Price=2000,Cooldown=50,Image=76008989733506,Category="天使"},
+    {Name="克罗诺斯",ID=122,Rank="B",Amount=5,Price=22500,Cooldown=600,Image=125817598848664,Category="天使"},
+    {Name="Pwnsalot",ID=101,Rank="B",Amount=5,Price=1200,Cooldown=15,Image=100746586925732,Category="天使"},
 
     -- 死亡
     {Name="McBlast",ID=116,Rank="B",Amount=4,Price=300,Cooldown=30,Image=83665706736688,Category="死亡"},
@@ -74,24 +74,13 @@ local Units = {
     {Name="极限",ID=72,Rank="B",Amount=4,Price=20000,Cooldown=500,Image=90530027731674,Category="死亡"},
     {Name="巨魔袭击",ID=105,Rank="B",Amount=4,Price=200,Cooldown=25,Image=119281801828499,Category="死亡"},
     {Name="束缚状态",ID=69,Rank="B",Amount=4,Price=1200,Cooldown=20,Image=90355776344408,Category="死亡"},
-
     {Name="双黑暗之心",ID=54,Rank="B",Amount=10,Price=300,Cooldown=10,Image=90816086906198,Category="死亡"},
     {Name="贝蒂",ID=56,Rank="B",Amount=10,Price=300,Cooldown=15,Image=112152174802483,Category="死亡"},
     {Name="血角",ID=65,Rank="B",Amount=10,Price=800,Cooldown=20,Image=73907201693668,Category="死亡"},
-
-    {
-        Name="原子",
-        ID=118,
-        Rank="B",
-        Amount=10,
-        Price=500,
-        Cooldown=20,
-        Image=72643510567320,
-        Category="死亡",
-        Args={Health=50}
-    },
-
+    {Name="原子",ID=118,Rank="B",Amount=10,Price=500,Cooldown=20,Image=72643510567320,Category="死亡",Args={Health=50}},
     {Name="顶级",ID=94,Rank="B",Amount=10,Price=1000,Cooldown=25,Image=103544184383951,Category="死亡"},
+    {Name="闪耀",ID=92,Rank="B",Amount=2,Price=400,Cooldown=20,Image=78409354291455,Category="死亡"},
+    {Name="弹头",ID=70,Rank="B",Amount=4,Price=1000,Cooldown=100,Image=98839631179168,Category="死亡"},
 
     -- 地狱
     {Name="地狱",ID=39,Rank="B",Amount=8,Price=2000,Cooldown=50,Image=113366045982105,Category="地狱"},
@@ -100,7 +89,8 @@ local Units = {
     {Name="Speeddemon",ID=150,Rank="B",Amount=4,Price=2400,Cooldown=70,Image=73440841269995,Category="地狱"},
     {Name="盾牌战士",ID=29,Rank="B",Amount=4,Price=300,Cooldown=30,Image=87500073270346,Category="地狱"},
     {Name="吉他英雄",ID=35,Rank="B",Amount=4,Price=2000,Cooldown=100,Image=117913123207840,Category="地狱"},
-    {Name="地狱火",ID=40,Rank="B",Amount=4,Price=12000,Cooldown=500,Image=95516325060350,Category="地狱"}
+    {Name="地狱火",ID=40,Rank="B",Amount=4,Price=12000,Cooldown=500,Image=95516325060350,Category="地狱"},
+    {Name="雇佣兵",ID=32,Rank="B",Amount=5,Price=300,Cooldown=10,Image=121186955802358,Category="地狱"}
 }
 
 --==================================================
@@ -110,13 +100,14 @@ local Units = {
 local Slots = {}
 local SlotCards = {}
 local WarehouseCards = {}
+local SelectedUnit = nil
 
 for i=1,8 do
     Slots[i] = {Unit=nil}
 end
 
 --==================================================
--- GUI
+-- GUI基础
 --==================================================
 
 local Gui = Instance.new("ScreenGui")
@@ -166,7 +157,7 @@ local function Label(parent,name,text,size,pos,z)
 end
 
 --==================================================
--- 银行
+-- 银行界面
 --==================================================
 
 local Bank = Instance.new("Frame")
@@ -229,14 +220,9 @@ local WarehouseButton = Button(Gui,"WarehouseButton","仓库",
 local SettingsButton
 
 if IsPC then
-    SettingsButton = Button(
-        Gui,
-        "KeySettings",
-        "按键设置",
+    SettingsButton = Button(Gui,"KeySettings","按键设置",
         UDim2.new(0,100,0,35),
-        UDim2.new(1,-205,0,90),
-        1000
-    )
+        UDim2.new(1,-205,0,90),1000)
 end
 
 --==================================================
@@ -263,7 +249,7 @@ SlotGrid.VerticalAlignment = Enum.VerticalAlignment.Center
 SlotGrid.Parent = SlotArea
 
 --==================================================
--- 冷却计算
+-- 冷却
 --==================================================
 
 local function GetRemaining(unit)
@@ -271,10 +257,7 @@ local function GetRemaining(unit)
         return 0
     end
 
-    return math.max(
-        0,
-        unit.Cooldown-(os.clock()-unit.Last)
-    )
+    return math.max(0,unit.Cooldown-(os.clock()-unit.Last))
 end
 
 local function UpdateSlots()
@@ -282,8 +265,10 @@ local function UpdateSlots()
         local unit = Slots[i].Unit
 
         if unit then
-            data.Icon.Image = "rbxassetid://"..unit.Image
-            data.Icon.Visible = true
+            data.Icon.Image = unit.Image ~= 0
+                and "rbxassetid://"..unit.Image or ""
+
+            data.Icon.Visible = unit.Image ~= 0
             data.PriceText.Text = "$"..unit.Price
             data.PriceText.Visible = true
 
@@ -295,8 +280,7 @@ local function UpdateSlots()
                     1,0,
                     math.clamp(remaining/unit.Cooldown,0,1),0
                 )
-                data.CooldownText.Text =
-                    tostring(math.ceil(remaining))
+                data.CooldownText.Text = tostring(math.ceil(remaining))
             else
                 data.CooldownMask.Visible = false
             end
@@ -355,18 +339,12 @@ local IsSmall = false
 
 ScaleButton.MouseButton1Click:Connect(function()
     IsSmall = not IsSmall
-
-    if IsSmall then
-        WarehouseScale.Scale = 0.75
-        ScaleButton.Text = "+"
-    else
-        WarehouseScale.Scale = 1
-        ScaleButton.Text = "−"
-    end
+    WarehouseScale.Scale = IsSmall and 0.75 or 1
+    ScaleButton.Text = IsSmall and "+" or "−"
 end)
 
 --==================================================
--- 仓库拖拽（支持手机）
+-- 仓库拖拽
 --==================================================
 
 local DragBar = Instance.new("TextButton")
@@ -485,19 +463,14 @@ WarehouseGrid.CellPadding = UDim2.new(0,7,0,7)
 WarehouseGrid.SortOrder = Enum.SortOrder.LayoutOrder
 WarehouseGrid.Parent = Scroll
 
-local EmptyLabel = Label(
-    Warehouse,
-    "Empty",
-    "没有符合条件的单位",
+local EmptyLabel = Label(Warehouse,"Empty","没有符合条件的单位",
     UDim2.new(1,-20,0,50),
-    UDim2.new(0,10,0,250),
-    140
-)
+    UDim2.new(0,10,0,250),140)
 
 EmptyLabel.Visible = false
 
 --==================================================
--- 检查单位是否已装备
+-- 检查是否已装备
 --==================================================
 
 local function IsUnitEquipped(unit)
@@ -506,7 +479,6 @@ local function IsUnitEquipped(unit)
             return true
         end
     end
-
     return false
 end
 
@@ -537,20 +509,16 @@ local function UpdateWarehouse()
 
             local equipped = IsUnitEquipped(unit)
 
-            local card = Button(
-                Scroll,
-                unit.Name,
-                "",
+            local card = Button(Scroll,unit.Name,"",
                 UDim2.new(0,75,0,75),
-                UDim2.new(0,0,0,0),
-                122
-            )
+                UDim2.new(0,0,0,0),122)
 
             local icon = Instance.new("ImageLabel")
             icon.Name = "UnitImage"
             icon.Size = UDim2.new(1,0,1,0)
             icon.BackgroundTransparency = 1
-            icon.Image = "rbxassetid://"..unit.Image
+            icon.Image = unit.Image ~= 0
+                and "rbxassetid://"..unit.Image or ""
             icon.ScaleType = Enum.ScaleType.Fit
             icon.ZIndex = 123
             icon.Parent = card
@@ -568,14 +536,9 @@ local function UpdateWarehouse()
                 mask.Parent = card
                 Corner(mask,8)
 
-                Label(
-                    mask,
-                    "Equipped",
-                    "已装备",
+                Label(mask,"Equipped","已装备",
                     UDim2.new(1,0,0,25),
-                    UDim2.new(0,0,0.5,-12),
-                    125
-                )
+                    UDim2.new(0,0,0.5,-12),125)
             end
 
             if SelectedUnit == unit then
@@ -611,14 +574,9 @@ end
 --==================================================
 
 for _,category in ipairs(Categories) do
-    local button = Button(
-        CategoryFrame,
-        category,
-        category,
+    local button = Button(CategoryFrame,category,category,
         UDim2.new(1,0,1,0),
-        UDim2.new(0,0,0,0),
-        122
-    )
+        UDim2.new(0,0,0,0),122)
 
     CategoryButtons[category] = button
 
@@ -707,13 +665,9 @@ end
 --==================================================
 
 local function ActivateSlot(i)
-
-    -- 停止状态：装备、替换、清空
     if not Running then
-
         if SelectedUnit ~= nil then
 
-            -- 防止同一单位重复装备
             for slotIndex,slot in ipairs(Slots) do
                 if slotIndex ~= i
                 and slot.Unit
@@ -732,10 +686,8 @@ local function ActivateSlot(i)
             return
         end
 
-        -- 未选择单位时清空卡槽
         if Slots[i].Unit ~= nil then
             Slots[i].Unit = nil
-
             UpdateSlots()
             UpdateWarehouse()
         end
@@ -743,7 +695,6 @@ local function ActivateSlot(i)
         return
     end
 
-    -- 开始状态：只能召唤
     SummonUnit(Slots[i].Unit)
 end
 
@@ -752,15 +703,9 @@ end
 --==================================================
 
 for i=1,8 do
-
-    local card = Button(
-        SlotArea,
-        "Slot"..i,
-        "",
+    local card = Button(SlotArea,"Slot"..i,"",
         UDim2.new(0,0,0,0),
-        UDim2.new(0,0,0,0),
-        101
-    )
+        UDim2.new(0,0,0,0),101)
 
     card.LayoutOrder = i
 
@@ -807,14 +752,9 @@ for i=1,8 do
     cooldownFill.ZIndex = 105
     cooldownFill.Parent = cooldownMask
 
-    local cooldownText = Label(
-        cooldownMask,
-        "CooldownText",
-        "",
+    local cooldownText = Label(cooldownMask,"CooldownText","",
         UDim2.new(1,0,0,25),
-        UDim2.new(0,0,0.5,-12),
-        106
-    )
+        UDim2.new(0,0,0.5,-12),106)
 
     cooldownText.TextStrokeTransparency = 0
 
@@ -840,7 +780,6 @@ local SettingsPanel
 local KeyButtons = {}
 
 if IsPC then
-
     SettingsPanel = Instance.new("Frame")
     SettingsPanel.Name = "KeySettingsPanel"
     SettingsPanel.Size = UDim2.new(0,270,0,370)
@@ -852,36 +791,21 @@ if IsPC then
     SettingsPanel.Parent = Gui
     Corner(SettingsPanel,10)
 
-    Label(
-        SettingsPanel,
-        "Title",
-        "卡槽数字键设置",
+    Label(SettingsPanel,"Title","卡槽数字键设置",
         UDim2.new(1,-45,0,40),
-        UDim2.new(0,5,0,5),
-        201
-    )
+        UDim2.new(0,5,0,5),201)
 
-    local CloseSettings = Button(
-        SettingsPanel,
-        "Close",
-        "X",
+    local CloseSettings = Button(SettingsPanel,"Close","X",
         UDim2.new(0,35,0,30),
-        UDim2.new(1,-40,0,5),
-        205
-    )
+        UDim2.new(1,-40,0,5),205)
 
     CloseSettings.MouseButton1Click:Connect(function()
         SettingsPanel.Visible = false
     end)
 
-    Label(
-        SettingsPanel,
-        "Description",
-        "点击卡槽按钮切换数字键",
+    Label(SettingsPanel,"Description","点击卡槽按钮切换数字键",
         UDim2.new(1,-20,0,25),
-        UDim2.new(0,10,0,42),
-        201
-    )
+        UDim2.new(0,10,0,42),201)
 
     local function RefreshKeyButtons()
         for i=1,8 do
@@ -891,23 +815,16 @@ if IsPC then
     end
 
     for i=1,8 do
-        local keyButton = Button(
-            SettingsPanel,
-            "Key"..i,
-            "",
+        local keyButton = Button(SettingsPanel,"Key"..i,"",
             UDim2.new(1,-20,0,32),
-            UDim2.new(0,10,0,75+(i-1)*35),
-            202
-        )
+            UDim2.new(0,10,0,75+(i-1)*35),202)
 
         KeyButtons[i] = keyButton
 
         keyButton.MouseButton1Click:Connect(function()
-
             local current = SlotKeys[i]
             local nextKey = current % 8 + 1
 
-            -- 查找是否有其他卡槽使用目标按键
             local otherSlot
 
             for j=1,8 do
@@ -917,13 +834,11 @@ if IsPC then
                 end
             end
 
-            -- 如果重复，自动交换
             if otherSlot then
                 SlotKeys[otherSlot] = current
             end
 
             SlotKeys[i] = nextKey
-
             RefreshKeyButtons()
         end)
     end
@@ -940,22 +855,12 @@ end
 --==================================================
 
 if IsPC then
-
     UserInputService.InputBegan:Connect(function(input,gameProcessed)
-
         if gameProcessed then return end
         if UserInputService:GetFocusedTextBox() then return end
         if not Gui.Parent then return end
-
-        -- 设置窗口打开时不触发召唤
-        if SettingsPanel.Visible then
-            return
-        end
-
-        -- 仓库打开时不触发召唤
-        if Warehouse.Visible then
-            return
-        end
+        if SettingsPanel.Visible then return end
+        if Warehouse.Visible then return end
 
         for i=1,8 do
             if input.KeyCode == SlotKeyCodes[SlotKeys[i]] then
@@ -988,7 +893,6 @@ end)
 --==================================================
 
 StopButton.MouseButton1Click:Connect(function()
-
     Running = false
     Level = 0
     Money = 600
@@ -1008,7 +912,6 @@ end)
 --==================================================
 
 StartButton.MouseButton1Click:Connect(function()
-
     if Running then return end
 
     Running = true
@@ -1035,17 +938,11 @@ end)
 
 local Hidden = false
 
-local HideButton = Button(
-    Gui,
-    "HideButton",
-    "隐藏",
+local HideButton = Button(Gui,"HideButton","隐藏",
     UDim2.new(0,85,0,35),
-    UDim2.new(1,-95,0,135),
-    1000000
-)
+    UDim2.new(1,-95,0,135),1000000)
 
 HideButton.MouseButton1Click:Connect(function()
-
     Hidden = not Hidden
 
     Bank.Visible = not Hidden
