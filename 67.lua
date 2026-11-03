@@ -56,6 +56,7 @@ local Units = {
     {Name="棍子",ID=109,Rank="B",Amount=8,Price=10000,Cooldown=100,Image=81963847967960,Category="普通"},
     {Name="黑暗轰炸机战士",ID=22,Rank="B",Amount=4,Price=1000,Cooldown=25,Image=93022672755160,Category="普通"},
     {Name="魔法生成器",ID=24,Rank="B",Amount=4,Price=1600,Cooldown=50,Image=101930259026845,Category="普通"},
+    {Name="爱国者弹头",ID=108,Rank="B",Amount=8,Price=15000,Cooldown=300,Image=71963794967775,Category="普通"},
 
     -- 僵尸
     {Name="保持微笑",ID=144,Rank="A",Amount=2,Price=1000,Cooldown=35,Image=134391460910247,Category="僵尸",Args={Health=600}},
@@ -90,7 +91,8 @@ local Units = {
     {Name="盾牌战士",ID=29,Rank="B",Amount=4,Price=300,Cooldown=30,Image=87500073270346,Category="地狱"},
     {Name="吉他英雄",ID=35,Rank="B",Amount=4,Price=2000,Cooldown=100,Image=117913123207840,Category="地狱"},
     {Name="地狱火",ID=40,Rank="B",Amount=4,Price=12000,Cooldown=500,Image=95516325060350,Category="地狱"},
-    {Name="雇佣兵",ID=32,Rank="B",Amount=5,Price=300,Cooldown=10,Image=121186955802358,Category="地狱"}
+    {Name="雇佣兵",ID=32,Rank="B",Amount=5,Price=300,Cooldown=10,Image=121186955802358,Category="地狱"},
+    {Name="瓶装",ID=88,Rank="B",Amount=8,Price=600,Cooldown=15,Image=109161080608846,Category="地狱"}
 }
 
 --==================================================
@@ -107,7 +109,7 @@ for i=1,8 do
 end
 
 --==================================================
--- GUI基础
+-- GUI
 --==================================================
 
 local Gui = Instance.new("ScreenGui")
@@ -213,10 +215,6 @@ local WarehouseButton = Button(Gui,"WarehouseButton","仓库",
     UDim2.new(0,85,0,38),
     UDim2.new(1,-95,0,90))
 
---==================================================
--- PC设置按钮
---==================================================
-
 local SettingsButton
 
 if IsPC then
@@ -241,7 +239,6 @@ SlotArea.Parent = Gui
 local SlotGrid = Instance.new("UIGridLayout")
 SlotGrid.CellSize = UDim2.new(0.235,0,0,48)
 SlotGrid.CellPadding = UDim2.new(0.01,0,0,6)
-SlotGrid.FillDirection = Enum.FillDirection.Horizontal
 SlotGrid.FillDirectionMaxCells = 4
 SlotGrid.SortOrder = Enum.SortOrder.LayoutOrder
 SlotGrid.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -265,10 +262,10 @@ local function UpdateSlots()
         local unit = Slots[i].Unit
 
         if unit then
-            data.Icon.Image = unit.Image ~= 0
-                and "rbxassetid://"..unit.Image or ""
-
-            data.Icon.Visible = unit.Image ~= 0
+            data.Icon.Image = "rbxassetid://"..unit.Image
+            data.Icon.Visible = true
+            data.NameText.Text = unit.Name
+            data.NameText.Visible = true
             data.PriceText.Text = "$"..unit.Price
             data.PriceText.Visible = true
 
@@ -286,6 +283,7 @@ local function UpdateSlots()
             end
         else
             data.Icon.Visible = false
+            data.NameText.Visible = false
             data.PriceText.Visible = false
             data.CooldownMask.Visible = false
         end
@@ -421,10 +419,6 @@ CategoryGrid.Parent = CategoryFrame
 
 local CategoryButtons = {}
 
---==================================================
--- 等级筛选
---==================================================
-
 local RankFrame = Instance.new("Frame")
 RankFrame.Size = UDim2.new(1,-10,0,30)
 RankFrame.Position = UDim2.new(0,5,0,78)
@@ -470,15 +464,16 @@ local EmptyLabel = Label(Warehouse,"Empty","没有符合条件的单位",
 EmptyLabel.Visible = false
 
 --==================================================
--- 检查是否已装备
+-- 装备检测
 --==================================================
 
 local function IsUnitEquipped(unit)
     for _,slot in ipairs(Slots) do
-        if slot.Unit and slot.Unit.ID == unit.ID then
+        if slot.Unit == unit then
             return true
         end
     end
+
     return false
 end
 
@@ -517,8 +512,7 @@ local function UpdateWarehouse()
             icon.Name = "UnitImage"
             icon.Size = UDim2.new(1,0,1,0)
             icon.BackgroundTransparency = 1
-            icon.Image = unit.Image ~= 0
-                and "rbxassetid://"..unit.Image or ""
+            icon.Image = "rbxassetid://"..unit.Image
             icon.ScaleType = Enum.ScaleType.Fit
             icon.ZIndex = 123
             icon.Parent = card
@@ -532,13 +526,13 @@ local function UpdateWarehouse()
                 mask.BackgroundColor3 = Color3.new(0,0,0)
                 mask.BackgroundTransparency = 0.45
                 mask.BorderSizePixel = 0
-                mask.ZIndex = 124
+                mask.ZIndex = 125
                 mask.Parent = card
                 Corner(mask,8)
 
                 Label(mask,"Equipped","已装备",
                     UDim2.new(1,0,0,25),
-                    UDim2.new(0,0,0.5,-12),125)
+                    UDim2.new(0,0,0.5,-12),126)
             end
 
             if SelectedUnit == unit then
@@ -550,12 +544,7 @@ local function UpdateWarehouse()
 
             card.MouseButton1Click:Connect(function()
                 if Running then return end
-
-                if IsUnitEquipped(unit) then
-                    SelectedUnit = nil
-                    UpdateWarehouse()
-                    return
-                end
+                if IsUnitEquipped(unit) then return end
 
                 SelectedUnit = unit
                 UpdateWarehouse()
@@ -632,8 +621,7 @@ end)
 --==================================================
 
 local function SummonUnit(unit)
-    if not Running then return end
-    if not unit then return end
+    if not Running or not unit then return end
     if GetRemaining(unit) > 0 then return end
     if Money < unit.Price then return end
 
@@ -666,14 +654,10 @@ end
 
 local function ActivateSlot(i)
     if not Running then
-        if SelectedUnit ~= nil then
 
+        if SelectedUnit then
             for slotIndex,slot in ipairs(Slots) do
-                if slotIndex ~= i
-                and slot.Unit
-                and slot.Unit.ID == SelectedUnit.ID then
-                    SelectedUnit = nil
-                    UpdateWarehouse()
+                if slotIndex ~= i and slot.Unit == SelectedUnit then
                     return
                 end
             end
@@ -686,7 +670,7 @@ local function ActivateSlot(i)
             return
         end
 
-        if Slots[i].Unit ~= nil then
+        if Slots[i].Unit then
             Slots[i].Unit = nil
             UpdateSlots()
             UpdateWarehouse()
@@ -718,6 +702,13 @@ for i=1,8 do
     icon.ZIndex = 102
     icon.Parent = card
     Corner(icon,7)
+
+    local nameText = Label(card,"NameText","",
+        UDim2.new(1,0,0,16),
+        UDim2.new(0,0,0,0),107)
+    nameText.BackgroundColor3 = Color3.fromRGB(0,0,0)
+    nameText.BackgroundTransparency = 0.3
+    nameText.Visible = false
 
     local priceText = Instance.new("TextLabel")
     priceText.Name = "PriceText"
@@ -761,6 +752,7 @@ for i=1,8 do
     SlotCards[i] = {
         Button = card,
         Icon = icon,
+        NameText = nameText,
         PriceText = priceText,
         CooldownMask = cooldownMask,
         CooldownFill = cooldownFill,
@@ -773,7 +765,7 @@ for i=1,8 do
 end
 
 --==================================================
--- PC按键设置界面
+-- PC按键设置
 --==================================================
 
 local SettingsPanel
@@ -858,7 +850,6 @@ if IsPC then
     UserInputService.InputBegan:Connect(function(input,gameProcessed)
         if gameProcessed then return end
         if UserInputService:GetFocusedTextBox() then return end
-        if not Gui.Parent then return end
         if SettingsPanel.Visible then return end
         if Warehouse.Visible then return end
 
@@ -917,8 +908,6 @@ StartButton.MouseButton1Click:Connect(function()
     Running = true
     SelectedUnit = nil
 
-    -- 所有单位冷却归零
-    -- 只有粉碎机进入完整800秒冷却
     for _,unit in ipairs(Units) do
         if unit.Name == "粉碎机" then
             unit.Last = os.clock()
@@ -933,7 +922,7 @@ StartButton.MouseButton1Click:Connect(function()
 end)
 
 --==================================================
--- 隐藏 / 显示主界面
+-- 隐藏 / 显示
 --==================================================
 
 local Hidden = false
@@ -1002,6 +991,5 @@ UpdateMoney()
 UpdateSlots()
 UpdateWarehouse()
 
-print("银行 + 仓库 + PC按键设置加载完成")
+print("银行 + 仓库 + 8卡槽加载完成")
 print("单位总数："..#Units)
-print("PC模式："..tostring(IsPC))
