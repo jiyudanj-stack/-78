@@ -261,15 +261,15 @@ local WarehouseButton = Button(Gui,"WarehouseButton","仓库",
 
 local StarFrame = Instance.new("Frame")
 StarFrame.Name = "StarSelector"
-StarFrame.Size = UDim2.new(0,150,0,32)
-StarFrame.Position = UDim2.new(1,-205,0,5)
+StarFrame.Size = UDim2.new(0,180,0,42)
+StarFrame.Position = UDim2.new(0,15,0,10)
 StarFrame.BackgroundTransparency = 1
 StarFrame.ZIndex = 500
 StarFrame.Parent = Gui
 
 local StarLayout = Instance.new("UIGridLayout")
-StarLayout.CellSize = UDim2.new(0,46,0,28)
-StarLayout.CellPadding = UDim2.new(0,3,0,0)
+StarLayout.CellSize = UDim2.new(0,52,0,38)
+StarLayout.CellPadding = UDim2.new(0,5,0,0)
 StarLayout.FillDirection = Enum.FillDirection.Horizontal
 StarLayout.Parent = StarFrame
 
@@ -284,7 +284,7 @@ for i=1,3 do
         StarFrame,
         "Star"..i,
         string.rep("★",i),
-        UDim2.new(0,46,0,28),
+        UDim2.new(0,52,0,38),
         UDim2.new(0,0,0,0),
         501
     )
@@ -298,9 +298,6 @@ for i=1,3 do
         if Running then return end
 
         StarLevel = i
-        MaxMoney = (StarLevel == 3) and 33500 or 22500
-        Money = math.min(Money, MaxMoney)
-        UpdateMoney()
         UpdateStars()
         UpdateSlots()
     end)
@@ -399,14 +396,14 @@ Warehouse.Visible = false
 Warehouse.ZIndex = 120
 Warehouse.Parent = Gui
 Corner(Warehouse,10)
-StarFrame.Parent = Warehouse
-Label(Warehouse,"Title","单位仓库",
-    UDim2.new(0.42,0,0,35),
-    UDim2.new(0,5,0,3),121)
 
 local WarehouseScale = Instance.new("UIScale")
 WarehouseScale.Scale = 1
 WarehouseScale.Parent = Warehouse
+
+Label(Warehouse,"Title","单位仓库",
+    UDim2.new(0.7,0,0,35),
+    UDim2.new(0,5,0,3),121)
 
 local CloseButton = Button(Warehouse,"Close","X",
     UDim2.new(0,35,0,30),
@@ -419,49 +416,6 @@ end)
 WarehouseButton.MouseButton1Click:Connect(function()
     Warehouse.Visible = not Warehouse.Visible
 end)
-
---==================================================
--- 更新日志按钮与窗口
---==================================================
-
-local UpdateLogButton = Button(Gui,"UpdateLogButton","更新日志",
-    UDim2.new(0,85,0,35),
-    UDim2.new(1,-95,0,180),1000)
-
-local UpdateLogFrame = Instance.new("Frame")
-UpdateLogFrame.Name = "UpdateLogFrame"
-UpdateLogFrame.Size = UDim2.new(0,300,0,250)
-UpdateLogFrame.Position = UDim2.new(0.5,-150,0.5,-125)
-UpdateLogFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
-UpdateLogFrame.BorderSizePixel = 0
-UpdateLogFrame.Visible = false
-UpdateLogFrame.ZIndex = 2000
-UpdateLogFrame.Parent = Gui
-Corner(UpdateLogFrame,10)
-
-Label(UpdateLogFrame,"Title","更新日志",
-    UDim2.new(1,-50,0,35),
-    UDim2.new(0,8,0,5),2001)
-
-local UpdateLogClose = Button(UpdateLogFrame,"Close","X",
-    UDim2.new(0,35,0,30),
-    UDim2.new(1,-40,0,5),2002)
-
-local UpdateLogText = Label(UpdateLogFrame,"Content",
-    "当前版本更新\\n\\n1. 星级选择移动至仓库右上角\\n2. 一星价格倍率：×1\\n3. 二星价格倍率：×2\\n4. 三星价格倍率：×3\\n5. 三星资金上限提高至 33500\\n6. 新增更新日志窗口",
-    UDim2.new(1,-20,1,-50),
-    UDim2.new(0,10,0,42),2001)
-UpdateLogText.TextWrapped = true
-UpdateLogText.TextYAlignment = Enum.TextYAlignment.Top
-
-UpdateLogButton.MouseButton1Click:Connect(function()
-    UpdateLogFrame.Visible = not UpdateLogFrame.Visible
-end)
-
-UpdateLogClose.MouseButton1Click:Connect(function()
-    UpdateLogFrame.Visible = false
-end)
-
 
 --==================================================
 -- 仓库缩放
@@ -661,8 +615,7 @@ local function UpdateWarehouse()
 
                 local mask = Instance.new("Frame")
                 mask.Size = UDim2.new(1,0,1,0)
-                mask.BackgroundColor3 = Color3.new(0,0,0)
-                mask.BackgroundTransparency = 0.45
+                mask.BackgroundColor3 = Color3.new(0,0,0)mask.BackgroundTransparency = 0.45
                 mask.BorderSizePixel = 0
                 mask.ZIndex = 125
                 mask.Parent = card
@@ -915,82 +868,216 @@ for i=1,8 do
 end
 
 --==================================================
--- PC按键设置
+-- 设置面板：按键设置 + 沙盒选项 + 更新日志
 --==================================================
 
-local SettingsPanel
-local KeyButtons = {}
+local SettingsButton = Button(Gui,"SettingsButton","设置",
+    UDim2.new(0,85,0,35),
+    UDim2.new(1,-185,0,90),1000)
 
-if IsPC then
-    SettingsPanel = Instance.new("Frame")
-    SettingsPanel.Name = "KeySettingsPanel"
-    SettingsPanel.Size = UDim2.new(0,270,0,370)
-    SettingsPanel.Position = UDim2.new(0.5,-135,0.5,-185)
-    SettingsPanel.BackgroundColor3 = Color3.fromRGB(20,20,20)
-    SettingsPanel.BorderSizePixel = 0
+local SettingsPanel = Instance.new("Frame")
+SettingsPanel.Name = "SettingsPanel"
+SettingsPanel.Size = UDim2.new(0,300,0,520)
+SettingsPanel.Position = UDim2.new(0.5,-150,0.5,-260)
+SettingsPanel.BackgroundColor3 = Color3.fromRGB(20,20,20)
+SettingsPanel.BorderSizePixel = 0
+SettingsPanel.Visible = false
+SettingsPanel.ZIndex = 200
+SettingsPanel.Parent = Gui
+Corner(SettingsPanel,10)
+
+Label(SettingsPanel,"Title","设置",
+    UDim2.new(1,-45,0,38),UDim2.new(0,8,0,5),201)
+
+local CloseSettings = Button(SettingsPanel,"CloseSettings","X",
+    UDim2.new(0,35,0,30),UDim2.new(1,-40,0,5),205)
+CloseSettings.MouseButton1Click:Connect(function()
     SettingsPanel.Visible = false
-    SettingsPanel.ZIndex = 200
-    SettingsPanel.Parent = Gui
-    Corner(SettingsPanel,10)
+end)
 
-    Label(SettingsPanel,"Title","卡槽数字键设置",
-        UDim2.new(1,-45,0,40),
-        UDim2.new(0,5,0,5),201)
+-- 沙盒专属开关：默认开启
+-- 开启：交换队伍重生点只在沙盒战斗中工作
+-- 关闭：非沙盒时允许客户端本地替换贴图
+local SandboxOnly = true
+local TextureAsset = "rbxassetid://114504093003897"
+local OriginalTextures = {}
+local TexturePatched = false
 
-    local CloseSettings = Button(SettingsPanel,"Close","X",
-        UDim2.new(0,35,0,30),
-        UDim2.new(1,-40,0,5),205)
+local SandboxOnlyButton = Button(SettingsPanel,"SandboxOnlyToggle",
+    "沙盒专属：开启",
+    UDim2.new(1,-20,0,34),UDim2.new(0,10,0,48),202)
 
-    CloseSettings.MouseButton1Click:Connect(function()
-        SettingsPanel.Visible = false
-    end)
+local function SetLocalTexturePatch(enabled)
+    if enabled and not TexturePatched then
+        table.clear(OriginalTextures)
+        for _,obj in ipairs(workspace:GetDescendants()) do
+            if obj:IsA("Decal") or obj:IsA("Texture") then
+                OriginalTextures[obj] = obj.Texture
+                obj.Texture = TextureAsset
+            end
+        end
+        TexturePatched = true
+    elseif not enabled and TexturePatched then
+        for obj,oldTexture in pairs(OriginalTextures) do
+            if obj and obj.Parent then
+                pcall(function() obj.Texture = oldTexture end)
+            end
+        end
+        table.clear(OriginalTextures)
+        TexturePatched = false
+    end
+end
 
-    Label(SettingsPanel,"Description","点击卡槽按钮切换数字键",
-        UDim2.new(1,-20,0,25),
-        UDim2.new(0,10,0,42),201)
+SandboxOnlyButton.MouseButton1Click:Connect(function()
+    SandboxOnly = not SandboxOnly
+    SandboxOnlyButton.Text = SandboxOnly and "沙盒专属：开启" or "沙盒专属：关闭"
+    SandboxOnlyButton.BackgroundColor3 = SandboxOnly
+        and Color3.fromRGB(45,125,65)
+        or Color3.fromRGB(45,45,45)
+
+    if SandboxOnly then
+        SetLocalTexturePatch(false)
+    else
+        pcall(function()
+            local gv = require(ReplicatedStorage.Modules.GameValues)
+            if not gv.IsSandbox then
+                SetLocalTexturePatch(true)
+            end
+        end)
+    end
+end)
+
+-- 沙盒：循环保持交换队伍重生点
+local SpawnSwapEnabled = false
+local SpawnSwapButton = Button(SettingsPanel,"SpawnSwapToggle",
+    "交换队伍重生点：关闭",
+    UDim2.new(1,-20,0,36),UDim2.new(0,10,0,88),202)
+
+local function SetSpawnSwap(enabled)
+    SpawnSwapEnabled = enabled
+    SpawnSwapButton.Text = enabled and "交换队伍重生点：开启" or "交换队伍重生点：关闭"
+    SpawnSwapButton.BackgroundColor3 = enabled
+        and Color3.fromRGB(45,125,65)
+        or Color3.fromRGB(45,45,45)
+
+    if not enabled then
+        SetLocalTexturePatch(false)
+        pcall(function()
+            local gv = require(ReplicatedStorage.Modules.GameValues)
+            if gv.IsSandbox and gv.InStage then
+                local rf = ReplicatedStorage.Events.RemoteFunction:FindFirstChild("SandboxSettings")
+                if rf then rf:InvokeServer("SpawnTeamsSwap", false) end
+            end
+        end)
+    end
+end
+
+SpawnSwapButton.MouseButton1Click:Connect(function()
+    SetSpawnSwap(not SpawnSwapEnabled)
+end)
+
+-- 更新日志入口也放在设置面板内
+local UpdateLogButton = Button(SettingsPanel,"UpdateLogButton","更新日志",
+    UDim2.new(1,-20,0,34),UDim2.new(0,10,0,131),202)
+
+local UpdateLogFrame = Instance.new("Frame")
+UpdateLogFrame.Name = "UpdateLogFrame"
+UpdateLogFrame.Size = UDim2.new(0,280,0,220)
+UpdateLogFrame.Position = UDim2.new(0.5,-140,0.5,-110)
+UpdateLogFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+UpdateLogFrame.BorderSizePixel = 0
+UpdateLogFrame.Visible = false
+UpdateLogFrame.ZIndex = 400
+UpdateLogFrame.Parent = Gui
+Corner(UpdateLogFrame,10)
+
+Label(UpdateLogFrame,"LogTitle","更新日志",
+    UDim2.new(1,-45,0,35),UDim2.new(0,8,0,5),401)
+
+local CloseLog = Button(UpdateLogFrame,"CloseLog","X",
+    UDim2.new(0,35,0,28),UDim2.new(1,-40,0,5),405)
+
+local LogText = Label(UpdateLogFrame,"LogText",
+    "当前版本更新\n\n1. 新增设置面板\n2. 新增交换队伍重生点开关（仅沙盒战斗生效）\n3. 更新日志整合到设置面板\n4. 保留原有银行、仓库和卡槽功能",
+    UDim2.new(1,-20,1,-50),UDim2.new(0,10,0,42),401)
+LogText.TextWrapped = true
+LogText.TextYAlignment = Enum.TextYAlignment.Top
+
+UpdateLogButton.MouseButton1Click:Connect(function()
+    UpdateLogFrame.Visible = not UpdateLogFrame.Visible
+end)
+CloseLog.MouseButton1Click:Connect(function()
+    UpdateLogFrame.Visible = false
+end)
+
+-- PC端卡槽数字键设置
+local KeyButtons = {}
+if IsPC then
+    Label(SettingsPanel,"KeyDescription","卡槽数字键设置：点击按钮轮换数字键",
+        UDim2.new(1,-20,0,28),UDim2.new(0,10,0,175),201)
 
     local function RefreshKeyButtons()
         for i=1,8 do
-            KeyButtons[i].Text =
-                "卡槽 "..i.."     数字键 "..SlotKeys[i]
+            KeyButtons[i].Text = "卡槽 "..i.."     数字键 "..SlotKeys[i]
         end
     end
 
     for i=1,8 do
         local keyButton = Button(SettingsPanel,"Key"..i,"",
-            UDim2.new(1,-20,0,32),
-            UDim2.new(0,10,0,75+(i-1)*35),202)
-
+            UDim2.new(1,-20,0,27),
+            UDim2.new(0,10,0,205+(i-1)*31),202)
         KeyButtons[i] = keyButton
 
         keyButton.MouseButton1Click:Connect(function()
             local current = SlotKeys[i]
             local nextKey = current % 8 + 1
-
             local otherSlot
-
             for j=1,8 do
                 if j ~= i and SlotKeys[j] == nextKey then
                     otherSlot = j
                     break
                 end
             end
-
-            if otherSlot then
-                SlotKeys[otherSlot] = current
-            end
-
+            if otherSlot then SlotKeys[otherSlot] = current end
             SlotKeys[i] = nextKey
             RefreshKeyButtons()
         end)
     end
-
     RefreshKeyButtons()
-
-    SettingsButton.MouseButton1Click:Connect(function()
-        SettingsPanel.Visible = not SettingsPanel.Visible
-    end)
 end
+
+SettingsButton.MouseButton1Click:Connect(function()
+    SettingsPanel.Visible = not SettingsPanel.Visible
+end)
+
+-- 每秒检查一次；只有用户开启且处于沙盒战斗时才请求服务器
+_G.LYY_SpawnSwap = task.spawn(function()
+    while Gui.Parent do
+        task.wait(1)
+        if SpawnSwapEnabled then
+            pcall(function()
+                local gv = require(ReplicatedStorage.Modules.GameValues)
+                if gv.IsSandbox and gv.InStage then
+                    -- 沙盒：调用原本的服务器设置
+                    local battle = Player.PlayerGui:FindFirstChild("BattleScreen")
+                    local btn = battle and battle:FindFirstChild("SpawnTeamsSwap",true)
+                    if not btn or btn:GetAttribute("Enabled") == true then return end
+                    local rf = ReplicatedStorage.Events.RemoteFunction:FindFirstChild("SandboxSettings")
+                    if not rf then return end
+                    if rf:InvokeServer("SpawnTeamsSwap",true) then
+                        btn:SetAttribute("Enabled",true)
+                        btn.BackgroundColor3 = Color3.fromRGB(100,255,100)
+                    end
+                elseif not SandboxOnly then
+                    -- 非沙盒：只修改本地 Decal / Texture，不调用服务器
+                    SetLocalTexturePatch(true)
+                end
+            end)
+        elseif TexturePatched then
+            SetLocalTexturePatch(false)
+        end
+    end
+end)
 
 --==================================================
 -- PC数字键监听
@@ -1091,18 +1178,16 @@ HideButton.MouseButton1Click:Connect(function()
     StopButton.Visible = not Hidden
     WarehouseButton.Visible = not Hidden
     SlotArea.Visible = not Hidden
+    StarFrame.Visible = not Hidden
 
     if SettingsButton then
         SettingsButton.Visible = not Hidden
     end
 
     Warehouse.Visible = false
-    UpdateLogFrame.Visible = false
-    UpdateLogButton.Visible = not Hidden
 
-    if SettingsPanel then
-        SettingsPanel.Visible = false
-    end
+    SettingsPanel.Visible = false
+    UpdateLogFrame.Visible = false
 
     HideButton.Text = Hidden and "显示" or "隐藏"
 end)
