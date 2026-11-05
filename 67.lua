@@ -48,6 +48,26 @@ local function GetUnitPrice(unit)
     )
 end
 
+local function GetScaledArgs(unit)
+    local args = {}
+
+    for key,value in pairs(unit.Args or {}) do
+        args[key] = value
+    end
+
+    local multiplier = StarMultipliers[StarLevel]
+
+    if args.Health ~= nil then
+        args.Health = args.Health * multiplier
+    end
+
+    if args.Damage ~= nil then
+        args.Damage = args.Damage * multiplier
+    end
+
+    return args
+end
+
 local function UpdateStars()
     for i,button in ipairs(StarButtons) do
         button.AutoButtonColor = not Running
@@ -92,47 +112,47 @@ local SlotKeyCodes = {
 
 local Units = {
     -- 普通
-    {Name="真理鹈鹕",ID=151,Rank="B",Amount=8,Price=20000,Cooldown=200,Image=102009551876604,Category="普通"},
-    {Name="棍子",ID=109,Rank="B",Amount=8,Price=10000,Cooldown=100,Image=81963847967960,Category="普通"},
-    {Name="黑暗轰炸机战士",ID=22,Rank="B",Amount=4,Price=1000,Cooldown=25,Image=93022672755160,Category="普通"},
-    {Name="魔法生成器",ID=24,Rank="B",Amount=4,Price=1600,Cooldown=50,Image=101930259026845,Category="普通"},
-    {Name="爱国者弹头",ID=108,Rank="B",Amount=8,Price=15000,Cooldown=300,Image=71963794967775,Category="普通"},
+    {Name="真理鹈鹕",ID=151,Rank="B",Amount=8,Price=20000,Cooldown=200,Image=102009551876604,Category="普通",Args={Health=10000,Damage=2000}},
+    {Name="生化人棍棒战斗",ID=109,Rank="B",Amount=8,Price=10000,Cooldown=100,Image=81963847967960,Category="普通",Args={Health=2800,Damage=95}},
+    {Name="黑暗轰炸机战士",ID=22,Rank="B",Amount=4,Price=1000,Cooldown=25,Image=93022672755160,Category="普通",Args={Health=30,Damage=150}},
+    {Name="魔法生成器",ID=24,Rank="B",Amount=4,Price=1600,Cooldown=50,Image=101930259026845,Category="普通",Args={Health=300,Damage=20}},
+    {Name="爱国者弹头",ID=108,Rank="B",Amount=8,Price=15000,Cooldown=300,Image=71963794967775,Category="普通",Args={Health=4000,Damage=100}},
 
     -- 僵尸
     {Name="保持微笑",ID=144,Rank="A",Amount=2,Price=1000,Cooldown=35,Image=134391460910247,Category="僵尸",Args={Health=600}},
-    {Name="披萨",ID=136,Rank="A",Amount=2,Price=500,Cooldown=50,Image=76810868926793,Category="僵尸"},
-    {Name="保护僵尸",ID=135,Rank="A",Amount=2,Price=900,Cooldown=70,Image=117471233334728,Category="僵尸"},
+    {Name="披萨",ID=136,Rank="A",Amount=2,Price=500,Cooldown=50,Image=76810868926793,Category="僵尸",Args={Health=400,Damage=50}},
+    {Name="保护僵尸",ID=135,Rank="A",Amount=2,Price=900,Cooldown=70,Image=117471233334728,Category="僵尸",Args={Health=300,Damage=20}},
 
     -- 天使
-    {Name="诺曼",ID=104,Rank="B",Amount=2,Price=800,Cooldown=60,Image=76163313488934,Category="天使"},
-    {Name="审判",ID=115,Rank="B",Amount=6,Price=2000,Cooldown=50,Image=76008989733506,Category="天使"},
-    {Name="克罗诺斯",ID=122,Rank="B",Amount=5,Price=22500,Cooldown=600,Image=125817598848664,Category="天使"},
-    {Name="Pwnsalot",ID=101,Rank="B",Amount=5,Price=1200,Cooldown=15,Image=100746586925732,Category="天使"},
+    {Name="诺曼",ID=104,Rank="B",Amount=2,Price=800,Cooldown=60,Image=76163313488934,Category="天使",Args={Health=300,Damage=50}},
+    {Name="审判",ID=115,Rank="B",Amount=6,Price=2000,Cooldown=50,Image=76008989733506,Category="天使",Args={Health=300,Damage=60}},
+    {Name="克罗诺斯",ID=122,Rank="B",Amount=5,Price=22500,Cooldown=600,Image=125817598848664,Category="天使",Args={Health=3000,Damage=50}},
+    {Name="Pwnsalot",ID=101,Rank="B",Amount=5,Price=1200,Cooldown=15,Image=100746586925732,Category="天使",Args={Health=80,Damage=100}},
 
     -- 死亡
-    {Name="McBlast",ID=116,Rank="B",Amount=4,Price=300,Cooldown=30,Image=83665706736688,Category="死亡"},
-    {Name="粉碎机",ID=121,Rank="B",Amount=4,Price=8000,Cooldown=800,Image=132780898159572,Category="死亡"},
-    {Name="极限",ID=72,Rank="B",Amount=4,Price=20000,Cooldown=500,Image=90530027731674,Category="死亡"},
-    {Name="巨魔袭击",ID=105,Rank="B",Amount=4,Price=200,Cooldown=25,Image=119281801828499,Category="死亡"},
-    {Name="束缚状态",ID=69,Rank="B",Amount=4,Price=1200,Cooldown=20,Image=90355776344408,Category="死亡"},
-    {Name="双黑暗之心",ID=54,Rank="B",Amount=10,Price=300,Cooldown=10,Image=90816086906198,Category="死亡"},
-    {Name="贝蒂",ID=56,Rank="B",Amount=10,Price=300,Cooldown=15,Image=112152174802483,Category="死亡"},
-    {Name="血角",ID=65,Rank="B",Amount=10,Price=800,Cooldown=20,Image=73907201693668,Category="死亡"},
+    {Name="McBlast",ID=116,Rank="B",Amount=4,Price=300,Cooldown=30,Image=83665706736688,Category="死亡",Args={Health=60,Damage=20}},
+    {Name="粉碎机",ID=121,Rank="B",Amount=4,Price=8000,Cooldown=800,Image=132780898159572,Category="死亡",Args={Health=4000,Damage=1000}},
+    {Name="极限",ID=72,Rank="B",Amount=4,Price=20000,Cooldown=500,Image=90530027731674,Category="死亡",Args={Health=3000,Damage=40}},
+    {Name="巨魔袭击",ID=105,Rank="B",Amount=4,Price=200,Cooldown=25,Image=119281801828499,Category="死亡",Args={Health=40,Damage=60}},
+    {Name="束缚状态",ID=69,Rank="B",Amount=4,Price=1200,Cooldown=20,Image=90355776344408,Category="死亡",Args={Health=40,Damage=100}},
+    {Name="双黑暗之心",ID=54,Rank="B",Amount=10,Price=300,Cooldown=10,Image=90816086906198,Category="死亡",Args={Health=50,Damage=20}},
+    {Name="贝蒂",ID=56,Rank="B",Amount=10,Price=300,Cooldown=15,Image=112152174802483,Category="死亡",Args={Health=60,Damage=30}},
+    {Name="血角",ID=65,Rank="B",Amount=10,Price=800,Cooldown=20,Image=73907201693668,Category="死亡",Args={Health=200,Damage=30}},
     {Name="原子",ID=118,Rank="B",Amount=10,Price=500,Cooldown=20,Image=72643510567320,Category="死亡",Args={Health=50}},
-    {Name="顶级",ID=94,Rank="B",Amount=10,Price=1000,Cooldown=25,Image=103544184383951,Category="死亡"},
-    {Name="闪耀",ID=92,Rank="B",Amount=2,Price=400,Cooldown=20,Image=78409354291455,Category="死亡"},
-    {Name="弹头",ID=70,Rank="B",Amount=4,Price=1000,Cooldown=100,Image=98839631179168,Category="死亡"},
+    {Name="顶级",ID=94,Rank="B",Amount=10,Price=1000,Cooldown=25,Image=103544184383951,Category="死亡",Args={Health=50,Damage=10}},
+    {Name="闪耀",ID=92,Rank="B",Amount=2,Price=400,Cooldown=20,Image=78409354291455,Category="死亡",Args={Health=40,Damage=10}},
+    {Name="弹头",ID=70,Rank="B",Amount=4,Price=1000,Cooldown=100,Image=98839631179168,Category="死亡",Args={Health=400,Damage=100}},
 
     -- 地狱
-    {Name="地狱",ID=39,Rank="B",Amount=8,Price=2000,Cooldown=50,Image=113366045982105,Category="地狱"},
-    {Name="天才",ID=89,Rank="B",Amount=4,Price=1200,Cooldown=60,Image=139624564209954,Category="地狱"},
-    {Name="疯狂化学家",ID=60,Rank="B",Amount=4,Price=3000,Cooldown=100,Image=134686338431581,Category="地狱"},
-    {Name="Speeddemon",ID=150,Rank="B",Amount=4,Price=2400,Cooldown=70,Image=73440841269995,Category="地狱"},
-    {Name="盾牌战士",ID=29,Rank="B",Amount=4,Price=300,Cooldown=30,Image=87500073270346,Category="地狱"},
-    {Name="吉他英雄",ID=35,Rank="B",Amount=4,Price=2000,Cooldown=100,Image=117913123207840,Category="地狱"},
-    {Name="地狱火",ID=40,Rank="B",Amount=4,Price=12000,Cooldown=500,Image=95516325060350,Category="地狱"},
-    {Name="雇佣兵",ID=32,Rank="B",Amount=5,Price=300,Cooldown=10,Image=121186955802358,Category="地狱"},
-    {Name="瓶装",ID=88,Rank="B",Amount=8,Price=600,Cooldown=15,Image=109161080608846,Category="地狱"}
+    {Name="地狱",ID=39,Rank="B",Amount=8,Price=2000,Cooldown=50,Image=113366045982105,Category="地狱",Args={Health=600,Damage=20}},
+    {Name="天才",ID=89,Rank="B",Amount=4,Price=1200,Cooldown=60,Image=139624564209954,Category="地狱",Args={Health=60}},
+    {Name="疯狂化学家",ID=60,Rank="B",Amount=4,Price=3000,Cooldown=100,Image=134686338431581,Category="地狱",Args={Health=200,Damage=75}},
+    {Name="Speeddemon",ID=150,Rank="B",Amount=4,Price=2400,Cooldown=70,Image=73440841269995,Category="地狱",Args={Health=100,Damage=60}},
+    {Name="盾牌战士",ID=29,Rank="B",Amount=4,Price=300,Cooldown=30,Image=87500073270346,Category="地狱",Args={Health=90,Damage=0}},
+    {Name="吉他英雄",ID=35,Rank="B",Amount=4,Price=2000,Cooldown=100,Image=117913123207840,Category="地狱",Args={Health=60}},
+    {Name="地狱火",ID=40,Rank="B",Amount=4,Price=12000,Cooldown=500,Image=95516325060350,Category="地狱",Args={Health=6000,Damage=20}},
+    {Name="雇佣兵",ID=32,Rank="B",Amount=5,Price=300,Cooldown=10,Image=121186955802358,Category="地狱",Args={Health=60,Damage=6}},
+    {Name="瓶装",ID=88,Rank="B",Amount=8,Price=600,Cooldown=15,Image=109161080608846,Category="地狱",Args={Health=80,Damage=15}}
 }
 
 --==================================================
@@ -254,66 +274,6 @@ local StopButton = Button(Gui,"Stop","停止",
 local WarehouseButton = Button(Gui,"WarehouseButton","仓库",
     UDim2.new(0,85,0,38),
     UDim2.new(1,-95,0,90))
-
---==================================================
--- 星级按钮：左上角
---==================================================
-
-local StarFrame = Instance.new("Frame")
-StarFrame.Name = "StarSelector"
-StarFrame.Size = UDim2.new(0,180,0,42)
-StarFrame.Position = UDim2.new(0,15,0,10)
-StarFrame.BackgroundTransparency = 1
-StarFrame.ZIndex = 500
-StarFrame.Parent = Gui
-
-local StarLayout = Instance.new("UIGridLayout")
-StarLayout.CellSize = UDim2.new(0,52,0,38)
-StarLayout.CellPadding = UDim2.new(0,5,0,0)
-StarLayout.FillDirection = Enum.FillDirection.Horizontal
-StarLayout.Parent = StarFrame
-
-local StarColors = {
-    Color3.fromRGB(0,190,255),
-    Color3.fromRGB(255,160,0),
-    Color3.fromRGB(255,45,45)
-}
-
-for i=1,3 do
-    local button = Button(
-        StarFrame,
-        "Star"..i,
-        string.rep("★",i),
-        UDim2.new(0,52,0,38),
-        UDim2.new(0,0,0,0),
-        501
-    )
-
-    button.BackgroundColor3 = StarColors[i]
-    button.TextColor3 = Color3.new(1,1,1)
-
-    StarButtons[i] = button
-
-    button.MouseButton1Click:Connect(function()
-        if Running then return end
-
-        StarLevel = i
-        UpdateStars()
-        UpdateSlots()
-    end)
-end
-
---==================================================
--- PC按键设置按钮
---==================================================
-
-local SettingsButton
-
-if IsPC then
-    SettingsButton = Button(Gui,"KeySettings","按键设置",
-        UDim2.new(0,100,0,35),
-        UDim2.new(1,-205,0,90),1000)
-end
 
 --==================================================
 -- 卡槽区域：4列2行
@@ -615,7 +575,8 @@ local function UpdateWarehouse()
 
                 local mask = Instance.new("Frame")
                 mask.Size = UDim2.new(1,0,1,0)
-                mask.BackgroundColor3 = Color3.new(0,0,0)mask.BackgroundTransparency = 0.45
+                mask.BackgroundColor3 = Color3.new(0,0,0)
+                mask.BackgroundTransparency = 0.45
                 mask.BorderSizePixel = 0
                 mask.ZIndex = 125
                 mask.Parent = card
@@ -707,8 +668,7 @@ RankB.MouseButton1Click:Connect(function()
     UpdateWarehouse()
 end)
 
---==================================================
--- 召唤单位
+--==================================================-- 召唤单位
 --==================================================
 
 local function SummonUnit(unit)
@@ -732,7 +692,7 @@ local function SummonUnit(unit)
                 unit.ID,
                 unit.Rank,
                 unit.Amount,
-                unit.Args or {}
+                GetScaledArgs(unit)
             )
         end)
 
@@ -868,7 +828,7 @@ for i=1,8 do
 end
 
 --==================================================
--- 设置面板：按键设置 + 沙盒选项 + 更新日志
+-- 设置面板：星级 + 沙盒选项 + 更新日志 + 按键
 --==================================================
 
 local SettingsButton = Button(Gui,"SettingsButton","设置",
@@ -891,84 +851,205 @@ Label(SettingsPanel,"Title","设置",
 
 local CloseSettings = Button(SettingsPanel,"CloseSettings","X",
     UDim2.new(0,35,0,30),UDim2.new(1,-40,0,5),205)
+
 CloseSettings.MouseButton1Click:Connect(function()
     SettingsPanel.Visible = false
 end)
 
--- 沙盒专属开关：默认开启
--- 开启：交换队伍重生点只在沙盒战斗中工作
--- 关闭：非沙盒时允许客户端本地替换贴图
+--==================================================
+-- 星级选择：只能在停止状态修改
+--==================================================
+
+local StarColors = {
+    Color3.fromRGB(0,190,255),
+    Color3.fromRGB(255,160,0),
+    Color3.fromRGB(255,45,45)
+}
+
+local function SetStarLevel(level)
+    if Running then return end
+    if not StarMultipliers[level] then return end
+
+    StarLevel = level
+    MaxMoney = StarLevel == 3 and 33500 or 22500
+    Money = math.min(Money,MaxMoney)
+
+    UpdateStars()
+    UpdateMoney()
+    UpdateSlots()
+    UpdateWarehouse()
+end
+
+for i=1,3 do
+    local button = Button(
+        SettingsPanel,
+        "Star"..i,
+        string.rep("★",i),
+        UDim2.new(0,85,0,38),
+        UDim2.new(0,10+(i-1)*95,0,48),
+        202
+    )
+
+    button.BackgroundColor3 = StarColors[i]
+    StarButtons[i] = button
+
+    button.MouseButton1Click:Connect(function()
+        SetStarLevel(i)
+    end)
+end
+
+--==================================================
+-- 沙盒专属与交换队伍重生点
+--==================================================
+
 local SandboxOnly = true
+local SpawnSwapEnabled = false
+
 local TextureAsset = "rbxassetid://114504093003897"
 local OriginalTextures = {}
 local TexturePatched = false
 
-local SandboxOnlyButton = Button(SettingsPanel,"SandboxOnlyToggle",
-    "沙盒专属：开启",
-    UDim2.new(1,-20,0,34),UDim2.new(0,10,0,48),202)
+local function PatchOneTexture(obj)
+    if not TexturePatched then return end
+    if not (obj:IsA("Decal") or obj:IsA("Texture")) then return end
+    if OriginalTextures[obj] ~= nil then return end
+
+    local ok,oldTexture = pcall(function()
+        return obj.Texture
+    end)
+
+    if not ok then return end
+
+    OriginalTextures[obj] = oldTexture
+
+    pcall(function()
+        obj.Texture = TextureAsset
+    end)
+end
 
 local function SetLocalTexturePatch(enabled)
     if enabled and not TexturePatched then
-        table.clear(OriginalTextures)
-        for _,obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("Decal") or obj:IsA("Texture") then
-                OriginalTextures[obj] = obj.Texture
-                obj.Texture = TextureAsset
-            end
-        end
         TexturePatched = true
+        table.clear(OriginalTextures)
+
+        for _,obj in ipairs(workspace:GetDescendants()) do
+            PatchOneTexture(obj)
+        end
+
     elseif not enabled and TexturePatched then
+        TexturePatched = false
+
         for obj,oldTexture in pairs(OriginalTextures) do
             if obj and obj.Parent then
-                pcall(function() obj.Texture = oldTexture end)
+                pcall(function()
+                    obj.Texture = oldTexture
+                end)
             end
         end
+
         table.clear(OriginalTextures)
-        TexturePatched = false
     end
 end
 
-SandboxOnlyButton.MouseButton1Click:Connect(function()
-    SandboxOnly = not SandboxOnly
-    SandboxOnlyButton.Text = SandboxOnly and "沙盒专属：开启" or "沙盒专属：关闭"
-    SandboxOnlyButton.BackgroundColor3 = SandboxOnly
-        and Color3.fromRGB(45,125,65)
-        or Color3.fromRGB(45,45,45)
-
-    if SandboxOnly then
-        SetLocalTexturePatch(false)
-    else
-        pcall(function()
-            local gv = require(ReplicatedStorage.Modules.GameValues)
-            if not gv.IsSandbox then
-                SetLocalTexturePatch(true)
-            end
-        end)
+workspace.DescendantAdded:Connect(function(obj)
+    if TexturePatched then
+        PatchOneTexture(obj)
     end
 end)
 
--- 沙盒：循环保持交换队伍重生点
-local SpawnSwapEnabled = false
-local SpawnSwapButton = Button(SettingsPanel,"SpawnSwapToggle",
-    "交换队伍重生点：关闭",
-    UDim2.new(1,-20,0,36),UDim2.new(0,10,0,88),202)
+local SandboxOnlyButton = Button(
+    SettingsPanel,
+    "SandboxOnlyToggle",
+    "沙盒专属：开启",
+    UDim2.new(1,-20,0,34),
+    UDim2.new(0,10,0,96),
+    202
+)
 
-local function SetSpawnSwap(enabled)
-    SpawnSwapEnabled = enabled
-    SpawnSwapButton.Text = enabled and "交换队伍重生点：开启" or "交换队伍重生点：关闭"
-    SpawnSwapButton.BackgroundColor3 = enabled
+local SpawnSwapButton = Button(
+    SettingsPanel,
+    "SpawnSwapToggle",
+    "交换队伍重生点：关闭",
+    UDim2.new(1,-20,0,36),
+    UDim2.new(0,10,0,137),
+    202
+)
+
+local function UpdateSandboxButtons()
+    SandboxOnlyButton.Text =
+        SandboxOnly and "沙盒专属：开启" or "沙盒专属：关闭"
+
+    SandboxOnlyButton.BackgroundColor3 =
+        SandboxOnly
         and Color3.fromRGB(45,125,65)
         or Color3.fromRGB(45,45,45)
 
-    if not enabled then
+    SpawnSwapButton.Text =
+        SpawnSwapEnabled
+        and "交换队伍重生点：开启"
+        or "交换队伍重生点：关闭"
+
+    SpawnSwapButton.BackgroundColor3 =
+        SpawnSwapEnabled
+        and Color3.fromRGB(45,125,65)
+        or Color3.fromRGB(45,45,45)
+end
+
+UpdateSandboxButtons()
+
+SandboxOnlyButton.MouseButton1Click:Connect(function()
+    SandboxOnly = not SandboxOnly
+    UpdateSandboxButtons()
+
+    if SandboxOnly then
         SetLocalTexturePatch(false)
-        pcall(function()
-            local gv = require(ReplicatedStorage.Modules.GameValues)
-            if gv.IsSandbox and gv.InStage then
-                local rf = ReplicatedStorage.Events.RemoteFunction:FindFirstChild("SandboxSettings")
-                if rf then rf:InvokeServer("SpawnTeamsSwap", false) end
-            end
-        end)
+    end
+end)
+
+--==================================================
+-- 服务器沙盒设置
+--==================================================
+
+local SpawnSwapApplied = false
+
+local function GetSandboxSettingsRemote()
+    local events = ReplicatedStorage:FindFirstChild("Events")
+    local remoteFolder = events and events:FindFirstChild("RemoteFunction")
+    local remote = remoteFolder and remoteFolder:FindFirstChild("SandboxSettings")
+
+    if remote and remote:IsA("RemoteFunction") then
+        return remote
+    end
+
+    return nil
+end
+
+local function ApplySpawnSwap(enabled)
+    if enabled == SpawnSwapApplied then
+        return
+    end
+
+    local remote = GetSandboxSettingsRemote()
+    if not remote then return end
+
+    local success,result = pcall(function()
+        return remote:InvokeServer("SpawnTeamsSwap",enabled)
+    end)
+
+    if success and result ~= false then
+        SpawnSwapApplied = enabled
+    elseif not success then
+        warn("交换队伍重生点设置失败：",result)
+    end
+end
+
+local function SetSpawnSwap(enabled)
+    SpawnSwapEnabled = enabled
+    UpdateSandboxButtons()
+
+    if not enabled then
+        ApplySpawnSwap(false)
+        SetLocalTexturePatch(false)
     end
 end
 
@@ -976,9 +1057,18 @@ SpawnSwapButton.MouseButton1Click:Connect(function()
     SetSpawnSwap(not SpawnSwapEnabled)
 end)
 
--- 更新日志入口也放在设置面板内
-local UpdateLogButton = Button(SettingsPanel,"UpdateLogButton","更新日志",
-    UDim2.new(1,-20,0,34),UDim2.new(0,10,0,131),202)
+--==================================================
+-- 更新日志
+--==================================================
+
+local UpdateLogButton = Button(
+    SettingsPanel,
+    "UpdateLogButton",
+    "更新日志",
+    UDim2.new(1,-20,0,34),
+    UDim2.new(0,10,0,180),
+    202
+)
 
 local UpdateLogFrame = Instance.new("Frame")
 UpdateLogFrame.Name = "UpdateLogFrame"
@@ -997,52 +1087,88 @@ Label(UpdateLogFrame,"LogTitle","更新日志",
 local CloseLog = Button(UpdateLogFrame,"CloseLog","X",
     UDim2.new(0,35,0,28),UDim2.new(1,-40,0,5),405)
 
-local LogText = Label(UpdateLogFrame,"LogText",
-    "当前版本更新\n\n1. 新增设置面板\n2. 新增交换队伍重生点开关（仅沙盒战斗生效）\n3. 更新日志整合到设置面板\n4. 保留原有银行、仓库和卡槽功能",
-    UDim2.new(1,-20,1,-50),UDim2.new(0,10,0,42),401)
+local LogText = Label(
+    UpdateLogFrame,
+    "LogText",
+    "当前版本更新\n\n"
+    .."1. 星级选择移入设置面板\n"
+    .."2. 一星、二星、三星属性倍率为 ×1、×2、×3\n"
+    .."3. 三星资金上限调整为 33500\n"
+    .."4. 沙盒状态持续检测\n"
+    .."5. 沙盒专属与交换队伍重生点联动\n"
+    .."6. 保留银行、仓库和8个装备卡槽",
+    UDim2.new(1,-20,1,-50),
+    UDim2.new(0,10,0,42),
+    401
+)
+
 LogText.TextWrapped = true
 LogText.TextYAlignment = Enum.TextYAlignment.Top
 
 UpdateLogButton.MouseButton1Click:Connect(function()
     UpdateLogFrame.Visible = not UpdateLogFrame.Visible
 end)
+
 CloseLog.MouseButton1Click:Connect(function()
     UpdateLogFrame.Visible = false
 end)
 
+--==================================================
 -- PC端卡槽数字键设置
+--==================================================
+
 local KeyButtons = {}
+
 if IsPC then
-    Label(SettingsPanel,"KeyDescription","卡槽数字键设置：点击按钮轮换数字键",
-        UDim2.new(1,-20,0,28),UDim2.new(0,10,0,175),201)
+    Label(
+        SettingsPanel,
+        "KeyDescription",
+        "卡槽数字键设置：点击按钮轮换数字键",
+        UDim2.new(1,-20,0,28),
+        UDim2.new(0,10,0,220),
+        201
+    )
 
     local function RefreshKeyButtons()
         for i=1,8 do
-            KeyButtons[i].Text = "卡槽 "..i.."     数字键 "..SlotKeys[i]
+            KeyButtons[i].Text =
+                "卡槽 "..i.."     数字键 "..SlotKeys[i]
         end
     end
 
     for i=1,8 do
-        local keyButton = Button(SettingsPanel,"Key"..i,"",
+        local keyButton = Button(
+            SettingsPanel,
+            "Key"..i,
+            "",
             UDim2.new(1,-20,0,27),
-            UDim2.new(0,10,0,205+(i-1)*31),202)
+            UDim2.new(0,10,0,250+(i-1)*31),
+            202
+        )
+
         KeyButtons[i] = keyButton
 
         keyButton.MouseButton1Click:Connect(function()
             local current = SlotKeys[i]
             local nextKey = current % 8 + 1
             local otherSlot
+
             for j=1,8 do
                 if j ~= i and SlotKeys[j] == nextKey then
                     otherSlot = j
                     break
                 end
             end
-            if otherSlot then SlotKeys[otherSlot] = current end
+
+            if otherSlot then
+                SlotKeys[otherSlot] = current
+            end
+
             SlotKeys[i] = nextKey
             RefreshKeyButtons()
         end)
     end
+
     RefreshKeyButtons()
 end
 
@@ -1050,33 +1176,46 @@ SettingsButton.MouseButton1Click:Connect(function()
     SettingsPanel.Visible = not SettingsPanel.Visible
 end)
 
--- 每秒检查一次；只有用户开启且处于沙盒战斗时才请求服务器
-_G.LYY_SpawnSwap = task.spawn(function()
+--==================================================
+-- 持续检测沙盒状态：每秒检查，不依赖开关点击
+--==================================================
+
+task.spawn(function()
     while Gui.Parent do
-        task.wait(1)
-        if SpawnSwapEnabled then
-            pcall(function()
-                local gv = require(ReplicatedStorage.Modules.GameValues)
-                if gv.IsSandbox and gv.InStage then
-                    -- 沙盒：调用原本的服务器设置
-                    local battle = Player.PlayerGui:FindFirstChild("BattleScreen")
-                    local btn = battle and battle:FindFirstChild("SpawnTeamsSwap",true)
-                    if not btn or btn:GetAttribute("Enabled") == true then return end
-                    local rf = ReplicatedStorage.Events.RemoteFunction:FindFirstChild("SandboxSettings")
-                    if not rf then return end
-                    if rf:InvokeServer("SpawnTeamsSwap",true) then
-                        btn:SetAttribute("Enabled",true)
-                        btn.BackgroundColor3 = Color3.fromRGB(100,255,100)
-                    end
-                elseif not SandboxOnly then
-                    -- 非沙盒：只修改本地 Decal / Texture，不调用服务器
+        local stateOK,gameValues = pcall(function()
+            return require(ReplicatedStorage.Modules.GameValues)
+        end)
+
+        if stateOK and type(gameValues) == "table" then
+            local isSandbox = gameValues.IsSandbox == true
+            local inStage = gameValues.InStage == true
+
+            if SpawnSwapEnabled and isSandbox and inStage then
+                -- 仅在沙盒战斗中启用服务器设置
+                SetLocalTexturePatch(false)
+                ApplySpawnSwap(true)
+            else
+                -- 离开沙盒战斗或关闭开关时，撤销服务器设置
+                ApplySpawnSwap(false)
+
+                -- 关闭“沙盒专属”后，非沙盒状态只替换本地贴图
+                if SpawnSwapEnabled and not isSandbox and not SandboxOnly then
                     SetLocalTexturePatch(true)
+                else
+                    SetLocalTexturePatch(false)
                 end
-            end)
-        elseif TexturePatched then
+            end
+        else
+            -- 无法读取状态时不贸然修改贴图，并尝试撤销已启用的服务器设置
             SetLocalTexturePatch(false)
+            ApplySpawnSwap(false)
         end
+
+        task.wait(1)
     end
+
+    SetLocalTexturePatch(false)
+    ApplySpawnSwap(false)
 end)
 
 --==================================================
@@ -1124,6 +1263,7 @@ StopButton.MouseButton1Click:Connect(function()
     Running = false
     Level = 0
     Money = 600
+    MaxMoney = StarLevel == 3 and 33500 or 22500
     SelectedUnit = nil
 
     for _,unit in ipairs(Units) do
@@ -1169,6 +1309,7 @@ local Hidden = false
 local HideButton = Button(Gui,"HideButton","隐藏",
     UDim2.new(0,85,0,35),
     UDim2.new(1,-95,0,135),1000000)
+HideButton.ZIndex = 1000000
 
 HideButton.MouseButton1Click:Connect(function()
     Hidden = not Hidden
@@ -1178,7 +1319,6 @@ HideButton.MouseButton1Click:Connect(function()
     StopButton.Visible = not Hidden
     WarehouseButton.Visible = not Hidden
     SlotArea.Visible = not Hidden
-    StarFrame.Visible = not Hidden
 
     if SettingsButton then
         SettingsButton.Visible = not Hidden
