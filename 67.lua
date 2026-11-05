@@ -19,7 +19,7 @@ local IsPC = UserInputService.KeyboardEnabled
 
 local Money = 600
 local Level = 0
-local MaxMoney = 22500
+local MaxMoney = 70000
 local MaxLevel = 9
 local Running = true
 
@@ -871,7 +871,7 @@ local function SetStarLevel(level)
     if not StarMultipliers[level] then return end
 
     StarLevel = level
-    MaxMoney = StarLevel == 3 and 33500 or 22500
+    MaxMoney = 70000
     Money = math.min(Money,MaxMoney)
 
     UpdateStars()
@@ -1093,7 +1093,7 @@ local LogText = Label(
     "当前版本更新\n\n"
     .."1. 星级选择移入设置面板\n"
     .."2. 一星、二星、三星属性倍率为 ×1、×2、×3\n"
-    .."3. 三星资金上限调整为 33500\n"
+    .."3. 所有星级资金上限调整为 70000\n"
     .."4. 沙盒状态持续检测\n"
     .."5. 沙盒专属与交换队伍重生点联动\n"
     .."6. 保留银行、仓库和8个装备卡槽",
@@ -1263,7 +1263,7 @@ StopButton.MouseButton1Click:Connect(function()
     Running = false
     Level = 0
     Money = 600
-    MaxMoney = StarLevel == 3 and 33500 or 22500
+    MaxMoney = 70000
     SelectedUnit = nil
 
     for _,unit in ipairs(Units) do
