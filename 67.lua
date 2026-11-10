@@ -36,16 +36,14 @@ local StarLevel = 1
 
 local StarMultipliers = {
     [1] = 1,
-    [2] = 2,
-    [3] = 3
+    [2] = 1.5,
+    [3] = 2
 }
 
 local StarButtons = {}
 
 local function GetUnitPrice(unit)
-    return math.floor(
-        unit.Price * StarMultipliers[StarLevel]
-    )
+    return unit.Price
 end
 
 local function GetScaledArgs(unit)
@@ -124,7 +122,7 @@ local Units = {
     {Name="保护僵尸",ID=135,Rank="A",Amount=2,Price=900,Cooldown=70,Image=117471233334728,Category="僵尸",Args={Health=300,Damage=20}},
 
     -- 天使
-    {Name="诺曼",ID=104,Rank="B",Amount=2,Price=800,Cooldown=60,Image=76163313488934,Category="天使",Args={Health=300,Damage=50}},
+    {Name="诺曼",ID=104,Rank="B",Amount=2,Price=800,Cooldown=15,Image=76163313488934,Category="天使",Args={Health=650,Damage=80}},
     {Name="审判",ID=115,Rank="B",Amount=6,Price=2000,Cooldown=50,Image=76008989733506,Category="天使",Args={Health=300,Damage=60}},
     {Name="克罗诺斯",ID=122,Rank="B",Amount=5,Price=22500,Cooldown=600,Image=125817598848664,Category="天使",Args={Health=3000,Damage=50}},
     {Name="Pwnsalot",ID=101,Rank="B",Amount=5,Price=1200,Cooldown=15,Image=100746586925732,Category="天使",Args={Health=80,Damage=100}},
@@ -668,7 +666,8 @@ RankB.MouseButton1Click:Connect(function()
     UpdateWarehouse()
 end)
 
---==================================================-- 召唤单位
+--==================================================
+-- 召唤单位
 --==================================================
 
 local function SummonUnit(unit)
@@ -685,8 +684,7 @@ local function SummonUnit(unit)
     UpdateMoney()
     UpdateSlots()
 
-    task.spawn(function()
-        local success,err = pcall(function()
+    task.spawn(function()local success,err = pcall(function()
             Event:InvokeServer(
                 "Enemy",
                 unit.ID,
