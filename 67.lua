@@ -126,6 +126,7 @@ local Units = {
     {Name="审判",ID=115,Rank="B",Amount=6,Price=2000,Cooldown=50,Image=76008989733506,Category="天使",Args={Health=300,Damage=60}},
     {Name="克罗诺斯",ID=122,Rank="B",Amount=5,Price=22500,Cooldown=600,Image=125817598848664,Category="天使",Args={Health=3000,Damage=50}},
     {Name="Pwnsalot",ID=101,Rank="B",Amount=5,Price=1200,Cooldown=15,Image=100746586925732,Category="天使",Args={Health=80,Damage=100}},
+    {Name="维京人",ID=104,Rank="A",Amount=4,Price=2000,Cooldown=15,Image=132758376686081,Category="天使",Args={Health=200,Damage=50}},
 
     -- 死亡
     {Name="McBlast",ID=116,Rank="B",Amount=4,Price=300,Cooldown=30,Image=83665706736688,Category="死亡",Args={Health=60,Damage=20}},
@@ -140,6 +141,7 @@ local Units = {
     {Name="顶级",ID=94,Rank="B",Amount=10,Price=1000,Cooldown=25,Image=103544184383951,Category="死亡",Args={Health=50,Damage=10}},
     {Name="闪耀",ID=92,Rank="B",Amount=2,Price=400,Cooldown=20,Image=78409354291455,Category="死亡",Args={Health=40,Damage=10}},
     {Name="弹头",ID=70,Rank="B",Amount=4,Price=1000,Cooldown=100,Image=98839631179168,Category="死亡",Args={Health=400,Damage=100}},
+    {Name="边缘之主",ID=91,Rank="B",Amount=4,Price=300,Cooldown=5,Image=76479036833202,Category="死亡",Args={Health=120,Damage=65}},
 
     -- 地狱
     {Name="地狱",ID=39,Rank="B",Amount=8,Price=2000,Cooldown=50,Image=113366045982105,Category="地狱",Args={Health=600,Damage=20}},
@@ -151,9 +153,7 @@ local Units = {
     {Name="地狱火",ID=40,Rank="B",Amount=4,Price=12000,Cooldown=500,Image=95516325060350,Category="地狱",Args={Health=6000,Damage=20}},
     {Name="雇佣兵",ID=32,Rank="B",Amount=5,Price=300,Cooldown=10,Image=121186955802358,Category="地狱",Args={Health=60,Damage=6}},
     {Name="瓶装",ID=88,Rank="B",Amount=8,Price=600,Cooldown=15,Image=109161080608846,Category="地狱",Args={Health=80,Damage=15}}
-}
-
---==================================================
+}--==================================================
 -- 卡槽数据
 --==================================================
 
@@ -684,7 +684,8 @@ local function SummonUnit(unit)
     UpdateMoney()
     UpdateSlots()
 
-    task.spawn(function()local success,err = pcall(function()
+    task.spawn(function()
+        local success,err = pcall(function()
             Event:InvokeServer(
                 "Enemy",
                 unit.ID,
@@ -823,9 +824,7 @@ for i=1,8 do
     card.MouseButton1Click:Connect(function()
         ActivateSlot(i)
     end)
-end
-
---==================================================
+end--==================================================
 -- 设置面板：星级 + 沙盒选项 + 更新日志 + 按键
 --==================================================
 
