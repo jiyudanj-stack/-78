@@ -1,37 +1,53 @@
-–================================================== – 银行 + 仓库 +
-8个装备卡槽 + 三星级系统 – LocalScript
-–==================================================
+--==================================================
+-- 银行 + 仓库 + 8个装备卡槽 + 三星级系统
+-- LocalScript
+--==================================================
 
-local Players = game:GetService(“Players”) local ReplicatedStorage =
-game:GetService(“ReplicatedStorage”) local UserInputService =
-game:GetService(“UserInputService”)
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 
-local Player = Players.LocalPlayer local Event =
-ReplicatedStorage.Events.RemoteFunction.SandboxSpawn
+local Player = Players.LocalPlayer
+local Event = ReplicatedStorage.Events.RemoteFunction.SandboxSpawn
 
-local IsPC = UserInputService.KeyboardEnabled and not
-UserInputService.TouchEnabled
+local IsPC = UserInputService.KeyboardEnabled
+    and not UserInputService.TouchEnabled
 
-–================================================== – 银行数据
-–==================================================
+--==================================================
+-- 银行数据
+--==================================================
 
-local Money = 600 local Level = 0 local MaxMoney = 70000 local MaxLevel
-= 9 local Running = true
+local Money = 600
+local Level = 0
+local MaxMoney = 70000
+local MaxLevel = 9
+local Running = true
 
-local UpgradeCosts = { 440,880,1320,1760,2200, 2640,3080,3520,3960 }
+local UpgradeCosts = {
+    440,880,1320,1760,2200,
+    2640,3080,3520,3960
+}
 
-–================================================== – 星级系统
-–==================================================
+--==================================================
+-- 星级系统
+--==================================================
 
 local StarLevel = 1
 
-local StarMultipliers = { [1] = 1, [2] = 1.5, [3] = 2 }
+local StarMultipliers = {
+    [1] = 1,
+    [2] = 1.5,
+    [3] = 2
+}
 
 local StarButtons = {}
 
-local function GetUnitPrice(unit) return unit.Price end
+local function GetUnitPrice(unit)
+    return unit.Price
+end
 
-local function GetScaledArgs(unit) local args = {}
+local function GetScaledArgs(unit)
+    local args = {}
 
     for key,value in pairs(unit.Args or {}) do
         args[key] = value
@@ -48,11 +64,12 @@ local function GetScaledArgs(unit) local args = {}
     end
 
     return args
-
 end
 
-local function UpdateStars() for i,button in ipairs(StarButtons) do
-button.AutoButtonColor = not Running button.Active = not Running
+local function UpdateStars()
+    for i,button in ipairs(StarButtons) do
+        button.AutoButtonColor = not Running
+        button.Active = not Running
 
         if i == StarLevel then
             button.BackgroundTransparency = 0
@@ -68,28 +85,36 @@ button.AutoButtonColor = not Running button.Active = not Running
             button.TextTransparency = 0
         end
     end
-
 end
 
-–================================================== – 按键设置
-–==================================================
+--==================================================
+-- 按键设置
+--==================================================
 
 local SlotKeys = {1,2,3,4,5,6,7,8}
 
-local SlotKeyCodes = { [1] = Enum.KeyCode.One, [2] = Enum.KeyCode.Two,
-[3] = Enum.KeyCode.Three, [4] = Enum.KeyCode.Four, [5] =
-Enum.KeyCode.Five, [6] = Enum.KeyCode.Six, [7] = Enum.KeyCode.Seven, [8]
-= Enum.KeyCode.Eight }
+local SlotKeyCodes = {
+    [1] = Enum.KeyCode.One,
+    [2] = Enum.KeyCode.Two,
+    [3] = Enum.KeyCode.Three,
+    [4] = Enum.KeyCode.Four,
+    [5] = Enum.KeyCode.Five,
+    [6] = Enum.KeyCode.Six,
+    [7] = Enum.KeyCode.Seven,
+    [8] = Enum.KeyCode.Eight
+}
 
-–================================================== – 单位数据
-–==================================================
+--==================================================
+-- 单位数据
+--==================================================
 
-local Units = { – 普通
-{Name=“真理鹈鹕”,ID=151,Rank=“B”,Amount=8,Price=20000,Cooldown=200,Image=102009551876604,Category=“普通”,Args={Health=10000,Damage=2000}},
-{Name=“生化人棍棒战斗”,ID=109,Rank=“B”,Amount=8,Price=10000,Cooldown=100,Image=81963847967960,Category=“普通”,Args={Health=2800,Damage=95}},
-{Name=“黑暗轰炸机战士”,ID=22,Rank=“B”,Amount=4,Price=1000,Cooldown=25,Image=93022672755160,Category=“普通”,Args={Health=30,Damage=150}},
-{Name=“魔法生成器”,ID=24,Rank=“B”,Amount=4,Price=1600,Cooldown=50,Image=101930259026845,Category=“普通”,Args={Health=300,Damage=20}},
-{Name=“爱国者弹头”,ID=108,Rank=“B”,Amount=8,Price=15000,Cooldown=300,Image=71963794967775,Category=“普通”,Args={Health=4000,Damage=100}},
+local Units = {
+    -- 普通
+    {Name="真理鹈鹕",ID=151,Rank="B",Amount=8,Price=20000,Cooldown=200,Image=102009551876604,Category="普通",Args={Health=10000,Damage=2000}},
+    {Name="生化人棍棒战斗",ID=109,Rank="B",Amount=8,Price=10000,Cooldown=100,Image=81963847967960,Category="普通",Args={Health=2800,Damage=95}},
+    {Name="黑暗轰炸机战士",ID=22,Rank="B",Amount=4,Price=1000,Cooldown=25,Image=93022672755160,Category="普通",Args={Health=30,Damage=150}},
+    {Name="魔法生成器",ID=24,Rank="B",Amount=4,Price=1600,Cooldown=50,Image=101930259026845,Category="普通",Args={Health=300,Damage=20}},
+    {Name="爱国者弹头",ID=108,Rank="B",Amount=8,Price=15000,Cooldown=300,Image=71963794967775,Category="普通",Args={Health=4000,Damage=100}},
 
     -- 僵尸
     {Name="保持微笑",ID=144,Rank="A",Amount=2,Price=1000,Cooldown=35,Image=134391460910247,Category="僵尸",Args={Health=600}},
@@ -128,109 +153,163 @@ local Units = { – 普通
     {Name="地狱火",ID=40,Rank="B",Amount=4,Price=12000,Cooldown=500,Image=95516325060350,Category="地狱",Args={Health=6000,Damage=20}},
     {Name="雇佣兵",ID=32,Rank="B",Amount=5,Price=300,Cooldown=10,Image=121186955802358,Category="地狱",Args={Health=60,Damage=6}},
     {Name="瓶装",ID=88,Rank="B",Amount=8,Price=600,Cooldown=15,Image=109161080608846,Category="地狱",Args={Health=80,Damage=15}}
+}--==================================================
+-- 卡槽数据
+--==================================================
 
-}–================================================== – 卡槽数据
-–==================================================
+local Slots = {}
+local SlotCards = {}
+local WarehouseCards = {}
+local SelectedUnit = nil
 
-local Slots = {} local SlotCards = {} local WarehouseCards = {} local
-SelectedUnit = nil
+for i=1,8 do
+    Slots[i] = {Unit=nil}
+end
 
-for i=1,8 do Slots[i] = {Unit=nil} end
+--==================================================
+-- GUI
+--==================================================
 
-–================================================== – GUI
-–==================================================
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "BankAndInventory"
+Gui.ResetOnSpawn = false
+Gui.IgnoreGuiInset = true
+Gui.DisplayOrder = 999999
+Gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+Gui.Parent = Player:WaitForChild("PlayerGui")
 
-local Gui = Instance.new(“ScreenGui”) Gui.Name = “BankAndInventory”
-Gui.ResetOnSpawn = false Gui.IgnoreGuiInset = true Gui.DisplayOrder =
-999999 Gui.ZIndexBehavior = Enum.ZIndexBehavior.Global Gui.Parent =
-Player:WaitForChild(“PlayerGui”)
+local function Corner(obj,radius)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0,radius or 7)
+    c.Parent = obj
+end
 
-local function Corner(obj,radius) local c = Instance.new(“UICorner”)
-c.CornerRadius = UDim.new(0,radius or 7) c.Parent = obj end
+local function Button(parent,name,text,size,pos,z)
+    local b = Instance.new("TextButton")
+    b.Name = name
+    b.Size = size
+    b.Position = pos
+    b.BackgroundColor3 = Color3.fromRGB(45,45,45)
+    b.TextColor3 = Color3.new(1,1,1)
+    b.Text = text
+    b.TextScaled = true
+    b.Font = Enum.Font.GothamBold
+    b.BorderSizePixel = 0
+    b.ZIndex = z or 100
+    b.Parent = parent
+    Corner(b,7)
+    return b
+end
 
-local function Button(parent,name,text,size,pos,z) local b =
-Instance.new(“TextButton”) b.Name = name b.Size = size b.Position = pos
-b.BackgroundColor3 = Color3.fromRGB(45,45,45) b.TextColor3 =
-Color3.new(1,1,1) b.Text = text b.TextScaled = true b.Font =
-Enum.Font.GothamBold b.BorderSizePixel = 0 b.ZIndex = z or 100 b.Parent
-= parent Corner(b,7) return b end
+local function Label(parent,name,text,size,pos,z)
+    local l = Instance.new("TextLabel")
+    l.Name = name
+    l.Size = size
+    l.Position = pos
+    l.BackgroundTransparency = 1
+    l.TextColor3 = Color3.new(1,1,1)
+    l.Text = text
+    l.TextScaled = true
+    l.Font = Enum.Font.GothamBold
+    l.ZIndex = z or 100
+    l.Parent = parent
+    return l
+end
 
-local function Label(parent,name,text,size,pos,z) local l =
-Instance.new(“TextLabel”) l.Name = name l.Size = size l.Position = pos
-l.BackgroundTransparency = 1 l.TextColor3 = Color3.new(1,1,1) l.Text =
-text l.TextScaled = true l.Font = Enum.Font.GothamBold l.ZIndex = z or
-100 l.Parent = parent return l end
+--==================================================
+-- 银行界面
+--==================================================
 
-–================================================== – 银行界面
-–==================================================
+local Bank = Instance.new("Frame")
+Bank.Name = "Bank"
+Bank.Size = UDim2.new(0,230,0,155)
+Bank.Position = UDim2.new(0,15,0,45)
+Bank.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Bank.BorderSizePixel = 0
+Bank.ZIndex = 100
+Bank.Parent = Gui
+Corner(Bank,10)
 
-local Bank = Instance.new(“Frame”) Bank.Name = “Bank” Bank.Size =
-UDim2.new(0,230,0,155) Bank.Position = UDim2.new(0,15,0,45)
-Bank.BackgroundColor3 = Color3.fromRGB(20,20,20) Bank.BorderSizePixel =
-0 Bank.ZIndex = 100 Bank.Parent = Gui Corner(Bank,10)
+Label(Bank,"Title","银行",
+    UDim2.new(1,0,0,30),
+    UDim2.new(0,0,0,3))
 
-Label(Bank,“Title”,“银行”, UDim2.new(1,0,0,30), UDim2.new(0,0,0,3))
+local MoneyLabel = Label(Bank,"Money","资金：600",
+    UDim2.new(1,-10,0,28),
+    UDim2.new(0,5,0,35))
 
-local MoneyLabel = Label(Bank,“Money”,“资金：600”,
-UDim2.new(1,-10,0,28), UDim2.new(0,5,0,35))
+local LevelLabel = Label(Bank,"Level","等级：0",
+    UDim2.new(1,-10,0,25),
+    UDim2.new(0,5,0,65))
 
-local LevelLabel = Label(Bank,“Level”,“等级：0”, UDim2.new(1,-10,0,25),
-UDim2.new(0,5,0,65))
+local UpgradeButton = Button(Bank,"Upgrade","升级银行",
+    UDim2.new(0.94,0,0,35),
+    UDim2.new(0.03,0,0,105))
 
-local UpgradeButton = Button(Bank,“Upgrade”,“升级银行”,
-UDim2.new(0.94,0,0,35), UDim2.new(0.03,0,0,105))
-
-local function UpdateMoney() MoneyLabel.Text =
-“资金：”..math.floor(Money) LevelLabel.Text = “等级：”..Level
+local function UpdateMoney()
+    MoneyLabel.Text = "资金："..math.floor(Money)
+    LevelLabel.Text = "等级："..Level
 
     if Level >= MaxLevel then
         UpgradeButton.Text = "等级已满"
     else
         UpgradeButton.Text = "升级："..UpgradeCosts[Level+1]
     end
-
 end
 
-–================================================== – 主按钮
-–==================================================
+--==================================================
+-- 主按钮
+--==================================================
 
-local StartButton = Button(Gui,“Start”,“开始”, UDim2.new(0,85,0,38),
-UDim2.new(1,-190,0,45))
+local StartButton = Button(Gui,"Start","开始",
+    UDim2.new(0,85,0,38),
+    UDim2.new(1,-190,0,45))
 
-local StopButton = Button(Gui,“Stop”,“停止”, UDim2.new(0,85,0,38),
-UDim2.new(1,-95,0,45))
+local StopButton = Button(Gui,"Stop","停止",
+    UDim2.new(0,85,0,38),
+    UDim2.new(1,-95,0,45))
 
-local WarehouseButton = Button(Gui,“WarehouseButton”,“仓库”,
-UDim2.new(0,85,0,38), UDim2.new(1,-95,0,90))
+local WarehouseButton = Button(Gui,"WarehouseButton","仓库",
+    UDim2.new(0,85,0,38),
+    UDim2.new(1,-95,0,90))
 
-–================================================== – 卡槽区域：4列2行
-–==================================================
+--==================================================
+-- 卡槽区域：4列2行
+--==================================================
 
-local SlotArea = Instance.new(“Frame”) SlotArea.Name = “EquipmentSlots”
-SlotArea.Size = UDim2.new(0.54,0,0,112) SlotArea.Position =
-UDim2.new(0.5,0,1,-115) SlotArea.AnchorPoint = Vector2.new(0.5,0)
-SlotArea.BackgroundTransparency = 1 SlotArea.ZIndex = 100
+local SlotArea = Instance.new("Frame")
+SlotArea.Name = "EquipmentSlots"
+SlotArea.Size = UDim2.new(0.54,0,0,112)
+SlotArea.Position = UDim2.new(0.5,0,1,-115)
+SlotArea.AnchorPoint = Vector2.new(0.5,0)
+SlotArea.BackgroundTransparency = 1
+SlotArea.ZIndex = 100
 SlotArea.Parent = Gui
 
-local SlotGrid = Instance.new(“UIGridLayout”) SlotGrid.CellSize =
-UDim2.new(0.235,0,0,48) SlotGrid.CellPadding = UDim2.new(0.01,0,0,6)
-SlotGrid.FillDirectionMaxCells = 4 SlotGrid.SortOrder =
-Enum.SortOrder.LayoutOrder SlotGrid.HorizontalAlignment =
-Enum.HorizontalAlignment.Center SlotGrid.VerticalAlignment =
-Enum.VerticalAlignment.Center SlotGrid.Parent = SlotArea
+local SlotGrid = Instance.new("UIGridLayout")
+SlotGrid.CellSize = UDim2.new(0.235,0,0,48)
+SlotGrid.CellPadding = UDim2.new(0.01,0,0,6)
+SlotGrid.FillDirectionMaxCells = 4
+SlotGrid.SortOrder = Enum.SortOrder.LayoutOrder
+SlotGrid.HorizontalAlignment = Enum.HorizontalAlignment.Center
+SlotGrid.VerticalAlignment = Enum.VerticalAlignment.Center
+SlotGrid.Parent = SlotArea
 
-–================================================== – 冷却
-–==================================================
+--==================================================
+-- 冷却
+--==================================================
 
-local function GetRemaining(unit) if not unit or not unit.Last then
-return 0 end
+local function GetRemaining(unit)
+    if not unit or not unit.Last then
+        return 0
+    end
 
     return math.max(0,unit.Cooldown-(os.clock()-unit.Last))
-
 end
 
-local function UpdateSlots() for i,data in ipairs(SlotCards) do local
-unit = Slots[i].Unit
+local function UpdateSlots()
+    for i,data in ipairs(SlotCards) do
+        local unit = Slots[i].Unit
 
         if unit then
             data.Icon.Image = "rbxassetid://"..unit.Image
@@ -259,64 +338,90 @@ unit = Slots[i].Unit
             data.CooldownMask.Visible = false
         end
     end
-
 end
 
-–================================================== – 仓库界面
-–==================================================
+--==================================================
+-- 仓库界面
+--==================================================
 
-local Warehouse = Instance.new(“Frame”) Warehouse.Name =
-“WarehousePanel” Warehouse.Size = UDim2.new(0,370,0,420)
+local Warehouse = Instance.new("Frame")
+Warehouse.Name = "WarehousePanel"
+Warehouse.Size = UDim2.new(0,370,0,420)
 Warehouse.Position = UDim2.new(0.5,-185,0.5,-210)
 Warehouse.BackgroundColor3 = Color3.fromRGB(20,20,20)
-Warehouse.BorderSizePixel = 0 Warehouse.Visible = false Warehouse.ZIndex
-= 120 Warehouse.Parent = Gui Corner(Warehouse,10)
+Warehouse.BorderSizePixel = 0
+Warehouse.Visible = false
+Warehouse.ZIndex = 120
+Warehouse.Parent = Gui
+Corner(Warehouse,10)
 
-local WarehouseScale = Instance.new(“UIScale”) WarehouseScale.Scale = 1
+local WarehouseScale = Instance.new("UIScale")
+WarehouseScale.Scale = 1
 WarehouseScale.Parent = Warehouse
 
-Label(Warehouse,“Title”,“单位仓库”, UDim2.new(0.7,0,0,35),
-UDim2.new(0,5,0,3),121)
+Label(Warehouse,"Title","单位仓库",
+    UDim2.new(0.7,0,0,35),
+    UDim2.new(0,5,0,3),121)
 
-local CloseButton = Button(Warehouse,“Close”,“X”, UDim2.new(0,35,0,30),
-UDim2.new(1,-42,0,5),130)
+local CloseButton = Button(Warehouse,"Close","X",
+    UDim2.new(0,35,0,30),
+    UDim2.new(1,-42,0,5),130)
 
-CloseButton.MouseButton1Click:Connect(function() Warehouse.Visible =
-false end)
+CloseButton.MouseButton1Click:Connect(function()
+    Warehouse.Visible = false
+end)
 
-WarehouseButton.MouseButton1Click:Connect(function() Warehouse.Visible =
-not Warehouse.Visible end)
+WarehouseButton.MouseButton1Click:Connect(function()
+    Warehouse.Visible = not Warehouse.Visible
+end)
 
-–================================================== – 仓库缩放
-–==================================================
+--==================================================
+-- 仓库缩放
+--==================================================
 
-local ScaleButton = Button(Warehouse,“ScaleButton”,“−”,
-UDim2.new(0,32,0,30), UDim2.new(1,-80,0,5),130)
+local ScaleButton = Button(Warehouse,"ScaleButton","−",
+    UDim2.new(0,32,0,30),
+    UDim2.new(1,-80,0,5),130)
 
 local IsSmall = false
 
-ScaleButton.MouseButton1Click:Connect(function() IsSmall = not IsSmall
-WarehouseScale.Scale = IsSmall and 0.75 or 1 ScaleButton.Text = IsSmall
-and “+” or “−” end)
+ScaleButton.MouseButton1Click:Connect(function()
+    IsSmall = not IsSmall
+    WarehouseScale.Scale = IsSmall and 0.75 or 1
+    ScaleButton.Text = IsSmall and "+" or "−"
+end)
 
-–================================================== – 仓库拖拽
-–==================================================
+--==================================================
+-- 仓库拖拽
+--==================================================
 
-local DragBar = Instance.new(“TextButton”) DragBar.Name = “DragBar”
-DragBar.Size = UDim2.new(1,-120,0,38) DragBar.BackgroundTransparency = 1
-DragBar.Text = “” DragBar.AutoButtonColor = false DragBar.Active = true
-DragBar.ZIndex = 125 DragBar.Parent = Warehouse
+local DragBar = Instance.new("TextButton")
+DragBar.Name = "DragBar"
+DragBar.Size = UDim2.new(1,-120,0,38)
+DragBar.BackgroundTransparency = 1
+DragBar.Text = ""
+DragBar.AutoButtonColor = false
+DragBar.Active = true
+DragBar.ZIndex = 125
+DragBar.Parent = Warehouse
 
-local Dragging = false local DragStart local StartPosition local
-DragInput
+local Dragging = false
+local DragStart
+local StartPosition
+local DragInput
 
-DragBar.InputBegan:Connect(function(input) if input.UserInputType ==
-Enum.UserInputType.MouseButton1 or input.UserInputType ==
-Enum.UserInputType.Touch then Dragging = true DragStart = input.Position
-StartPosition = Warehouse.Position DragInput = input end end)
+DragBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        Dragging = true
+        DragStart = input.Position
+        StartPosition = Warehouse.Position
+        DragInput = input
+    end
+end)
 
-UserInputService.InputChanged:Connect(function(input) if not Dragging
-then return end
+UserInputService.InputChanged:Connect(function(input)
+    if not Dragging then return end
 
     if input.UserInputType == Enum.UserInputType.MouseMovement
     or input.UserInputType == Enum.UserInputType.Touch then
@@ -329,78 +434,107 @@ then return end
             StartPosition.Y.Offset+delta.Y
         )
     end
-
 end)
 
-UserInputService.InputEnded:Connect(function(input) if input ==
-DragInput or input.UserInputType == Enum.UserInputType.MouseButton1 then
-Dragging = false DragInput = nil end end)
+UserInputService.InputEnded:Connect(function(input)
+    if input == DragInput
+    or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        Dragging = false
+        DragInput = nil
+    end
+end)
 
-–================================================== – 分类筛选
-–==================================================
+--==================================================
+-- 分类筛选
+--==================================================
 
-local Categories = { “全部”,“普通”,“地狱”,“死亡”,“天使”,“僵尸” }
+local Categories = {
+    "全部","普通","地狱","死亡","天使","僵尸"
+}
 
-local CurrentCategory = “全部” local CurrentRank = “全部”
+local CurrentCategory = "全部"
+local CurrentRank = "全部"
 
-local CategoryFrame = Instance.new(“Frame”) CategoryFrame.Size =
-UDim2.new(1,-10,0,32) CategoryFrame.Position = UDim2.new(0,5,0,42)
-CategoryFrame.BackgroundTransparency = 1 CategoryFrame.ZIndex = 121
+local CategoryFrame = Instance.new("Frame")
+CategoryFrame.Size = UDim2.new(1,-10,0,32)
+CategoryFrame.Position = UDim2.new(0,5,0,42)
+CategoryFrame.BackgroundTransparency = 1
+CategoryFrame.ZIndex = 121
 CategoryFrame.Parent = Warehouse
 
-local CategoryGrid = Instance.new(“UIGridLayout”) CategoryGrid.CellSize
-= UDim2.new(1/6,-3,1,0) CategoryGrid.CellPadding = UDim2.new(0,2,0,0)
+local CategoryGrid = Instance.new("UIGridLayout")
+CategoryGrid.CellSize = UDim2.new(1/6,-3,1,0)
+CategoryGrid.CellPadding = UDim2.new(0,2,0,0)
 CategoryGrid.Parent = CategoryFrame
 
 local CategoryButtons = {}
 
-local RankFrame = Instance.new(“Frame”) RankFrame.Size =
-UDim2.new(1,-10,0,30) RankFrame.Position = UDim2.new(0,5,0,78)
-RankFrame.BackgroundTransparency = 1 RankFrame.ZIndex = 121
+local RankFrame = Instance.new("Frame")
+RankFrame.Size = UDim2.new(1,-10,0,30)
+RankFrame.Position = UDim2.new(0,5,0,78)
+RankFrame.BackgroundTransparency = 1
+RankFrame.ZIndex = 121
 RankFrame.Parent = Warehouse
 
-local RankA = Button(RankFrame,“RankA”,“A”, UDim2.new(0.5,-3,1,0),
-UDim2.new(0,0,0,0),122)
+local RankA = Button(RankFrame,"RankA","A",
+    UDim2.new(0.5,-3,1,0),
+    UDim2.new(0,0,0,0),122)
 
-local RankB = Button(RankFrame,“RankB”,“B”, UDim2.new(0.5,-3,1,0),
-UDim2.new(0.5,3,0,0),122)
+local RankB = Button(RankFrame,"RankB","B",
+    UDim2.new(0.5,-3,1,0),
+    UDim2.new(0.5,3,0,0),122)
 
-–================================================== – 仓库列表
-–==================================================
+--==================================================
+-- 仓库列表
+--==================================================
 
-local Scroll = Instance.new(“ScrollingFrame”) Scroll.Name = “UnitList”
-Scroll.Size = UDim2.new(1,-12,1,-120) Scroll.Position =
-UDim2.new(0,6,0,113) Scroll.BackgroundColor3 = Color3.fromRGB(30,30,30)
-Scroll.BorderSizePixel = 0 Scroll.ScrollBarThickness = 6
-Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y Scroll.CanvasSize =
-UDim2.new(0,0,0,0) Scroll.ZIndex = 121 Scroll.Parent = Warehouse
+local Scroll = Instance.new("ScrollingFrame")
+Scroll.Name = "UnitList"
+Scroll.Size = UDim2.new(1,-12,1,-120)
+Scroll.Position = UDim2.new(0,6,0,113)
+Scroll.BackgroundColor3 = Color3.fromRGB(30,30,30)
+Scroll.BorderSizePixel = 0
+Scroll.ScrollBarThickness = 6
+Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+Scroll.CanvasSize = UDim2.new(0,0,0,0)
+Scroll.ZIndex = 121
+Scroll.Parent = Warehouse
 Corner(Scroll,7)
 
-local WarehouseGrid = Instance.new(“UIGridLayout”)
-WarehouseGrid.CellSize = UDim2.new(0,75,0,75) WarehouseGrid.CellPadding
-= UDim2.new(0,7,0,7) WarehouseGrid.SortOrder =
-Enum.SortOrder.LayoutOrder WarehouseGrid.Parent = Scroll
+local WarehouseGrid = Instance.new("UIGridLayout")
+WarehouseGrid.CellSize = UDim2.new(0,75,0,75)
+WarehouseGrid.CellPadding = UDim2.new(0,7,0,7)
+WarehouseGrid.SortOrder = Enum.SortOrder.LayoutOrder
+WarehouseGrid.Parent = Scroll
 
-local EmptyLabel = Label(Warehouse,“Empty”,“没有符合条件的单位”,
-UDim2.new(1,-20,0,50), UDim2.new(0,10,0,250),140)
+local EmptyLabel = Label(Warehouse,"Empty","没有符合条件的单位",
+    UDim2.new(1,-20,0,50),
+    UDim2.new(0,10,0,250),140)
 
 EmptyLabel.Visible = false
 
-–================================================== – 装备检测
-–==================================================
+--==================================================
+-- 装备检测
+--==================================================
 
-local function IsUnitEquipped(unit) for _,slot in ipairs(Slots) do if
-slot.Unit == unit then return true end end
+local function IsUnitEquipped(unit)
+    for _,slot in ipairs(Slots) do
+        if slot.Unit == unit then
+            return true
+        end
+    end
 
     return false
-
 end
 
-–================================================== – 更新仓库
-–==================================================
+--==================================================
+-- 更新仓库
+--==================================================
 
-local function UpdateWarehouse() for _,card in ipairs(WarehouseCards) do
-card:Destroy() end
+local function UpdateWarehouse()
+    for _,card in ipairs(WarehouseCards) do
+        card:Destroy()
+    end
 
     table.clear(WarehouseCards)
 
@@ -472,15 +606,16 @@ card:Destroy() end
 
     EmptyLabel.Visible = count == 0
     Scroll.CanvasPosition = Vector2.new(0,0)
-
 end
 
-–================================================== – 分类按钮
-–==================================================
+--==================================================
+-- 分类按钮
+--==================================================
 
-for _,category in ipairs(Categories) do local button =
-Button(CategoryFrame,category,category, UDim2.new(1,0,1,0),
-UDim2.new(0,0,0,0),122)
+for _,category in ipairs(Categories) do
+    local button = Button(CategoryFrame,category,category,
+        UDim2.new(1,0,1,0),
+        UDim2.new(0,0,0,0),122)
 
     CategoryButtons[category] = button
 
@@ -496,16 +631,17 @@ UDim2.new(0,0,0,0),122)
 
         UpdateWarehouse()
     end)
-
 end
 
-CategoryButtons[“全部”].BackgroundColor3 = Color3.fromRGB(40,130,70)
+CategoryButtons["全部"].BackgroundColor3 =
+    Color3.fromRGB(40,130,70)
 
-–================================================== – A / B 筛选
-–==================================================
+--==================================================
+-- A / B 筛选
+--==================================================
 
-RankA.MouseButton1Click:Connect(function() CurrentRank = CurrentRank ==
-“A” and “全部” or “A”
+RankA.MouseButton1Click:Connect(function()
+    CurrentRank = CurrentRank == "A" and "全部" or "A"
 
     RankA.BackgroundColor3 =
         CurrentRank == "A"
@@ -515,11 +651,10 @@ RankA.MouseButton1Click:Connect(function() CurrentRank = CurrentRank ==
     RankB.BackgroundColor3 = Color3.fromRGB(45,45,45)
 
     UpdateWarehouse()
-
 end)
 
-RankB.MouseButton1Click:Connect(function() CurrentRank = CurrentRank ==
-“B” and “全部” or “B”
+RankB.MouseButton1Click:Connect(function()
+    CurrentRank = CurrentRank == "B" and "全部" or "B"
 
     RankB.BackgroundColor3 =
         CurrentRank == "B"
@@ -529,14 +664,15 @@ RankB.MouseButton1Click:Connect(function() CurrentRank = CurrentRank ==
     RankA.BackgroundColor3 = Color3.fromRGB(45,45,45)
 
     UpdateWarehouse()
-
 end)
 
-–================================================== – 召唤单位
-–==================================================
+--==================================================
+-- 召唤单位
+--==================================================
 
-local function SummonUnit(unit) if not Running or not unit then return
-end if GetRemaining(unit) > 0 then return end
+local function SummonUnit(unit)
+    if not Running or not unit then return end
+    if GetRemaining(unit) > 0 then return end
 
     local summonPrice = GetUnitPrice(unit)
 
@@ -563,13 +699,14 @@ end if GetRemaining(unit) > 0 then return end
             warn("召唤失败：",err)
         end
     end)
-
 end
 
-–================================================== – 卡槽操作
-–==================================================
+--==================================================
+-- 卡槽操作
+--==================================================
 
-local function ActivateSlot(i) if not Running then
+local function ActivateSlot(i)
+    if not Running then
 
         if SelectedUnit then
             for slotIndex,slot in ipairs(Slots) do
@@ -596,14 +733,16 @@ local function ActivateSlot(i) if not Running then
     end
 
     SummonUnit(Slots[i].Unit)
-
 end
 
-–================================================== – 创建8个卡槽
-–==================================================
+--==================================================
+-- 创建8个卡槽
+--==================================================
 
-for i=1,8 do local card = Button(SlotArea,“Slot”..i,““,
-UDim2.new(0,0,0,0), UDim2.new(0,0,0,0),101)
+for i=1,8 do
+    local card = Button(SlotArea,"Slot"..i,"",
+        UDim2.new(0,0,0,0),
+        UDim2.new(0,0,0,0),101)
 
     card.LayoutOrder = i
     card.BackgroundColor3 = Color3.fromRGB(20,35,50)
@@ -622,9 +761,7 @@ UDim2.new(0,0,0,0), UDim2.new(0,0,0,0),101)
     icon.Visible = false
     icon.ZIndex = 102
     icon.Parent = card
-    Corner(icon,7)
-
-    local nameText = Label(card,"NameText","",
+    Corner(icon,7)local nameText = Label(card,"NameText","",
         UDim2.new(1,0,0,15),
         UDim2.new(0,0,0,0),107)
     nameText.BackgroundColor3 = Color3.fromRGB(0,0,0)
@@ -685,38 +822,50 @@ UDim2.new(0,0,0,0), UDim2.new(0,0,0,0),101)
     card.MouseButton1Click:Connect(function()
         ActivateSlot(i)
     end)
+end
 
-end–================================================== –
-设置面板：星级 + 沙盒选项 + 更新日志 + 按键
-–==================================================
+--==================================================
+-- 设置面板：星级 + 沙盒选项 + 更新日志 + 按键
+--==================================================
 
-local SettingsButton = Button(Gui,“SettingsButton”,“设置”,
-UDim2.new(0,85,0,35), UDim2.new(1,-185,0,90),1000)
+local SettingsButton = Button(Gui,"SettingsButton","设置",
+    UDim2.new(0,85,0,35),
+    UDim2.new(1,-185,0,90),1000)
 
-local SettingsPanel = Instance.new(“Frame”) SettingsPanel.Name =
-“SettingsPanel” SettingsPanel.Size = UDim2.new(0,300,0,520)
+local SettingsPanel = Instance.new("Frame")
+SettingsPanel.Name = "SettingsPanel"
+SettingsPanel.Size = UDim2.new(0,300,0,520)
 SettingsPanel.Position = UDim2.new(0.5,-150,0.5,-260)
 SettingsPanel.BackgroundColor3 = Color3.fromRGB(20,20,20)
-SettingsPanel.BorderSizePixel = 0 SettingsPanel.Visible = false
-SettingsPanel.ZIndex = 200 SettingsPanel.Parent = Gui
+SettingsPanel.BorderSizePixel = 0
+SettingsPanel.Visible = false
+SettingsPanel.ZIndex = 200
+SettingsPanel.Parent = Gui
 Corner(SettingsPanel,10)
 
-Label(SettingsPanel,“Title”,“设置”,
-UDim2.new(1,-45,0,38),UDim2.new(0,8,0,5),201)
+Label(SettingsPanel,"Title","设置",
+    UDim2.new(1,-45,0,38),UDim2.new(0,8,0,5),201)
 
-local CloseSettings = Button(SettingsPanel,“CloseSettings”,“X”,
-UDim2.new(0,35,0,30),UDim2.new(1,-40,0,5),205)
+local CloseSettings = Button(SettingsPanel,"CloseSettings","X",
+    UDim2.new(0,35,0,30),UDim2.new(1,-40,0,5),205)
 
-CloseSettings.MouseButton1Click:Connect(function() SettingsPanel.Visible
-= false end)
+CloseSettings.MouseButton1Click:Connect(function()
+    SettingsPanel.Visible = false
+end)
 
-–================================================== –
-星级选择：只能在停止状态修改
-–==================================================
+--==================================================
+-- 星级选择：只能在停止状态修改
+--==================================================
 
-local StarColors = { Color3.fromRGB(0,190,255),
-Color3.fromRGB(255,160,0), Color3.fromRGB(255,45,45) }local function SetStarLevel(level) if Running then return end if not
-StarMultipliers[level] then return end
+local StarColors = {
+    Color3.fromRGB(0,190,255),
+    Color3.fromRGB(255,160,0),
+    Color3.fromRGB(255,45,45)
+}
+
+local function SetStarLevel(level)
+    if Running then return end
+    if not StarMultipliers[level] then return end
 
     StarLevel = level
     MaxMoney = 70000
@@ -726,12 +875,17 @@ StarMultipliers[level] then return end
     UpdateMoney()
     UpdateSlots()
     UpdateWarehouse()
-
 end
 
-for i=1,3 do local button = Button( SettingsPanel, “Star”..i,
-string.rep(“★”,i), UDim2.new(0,85,0,38), UDim2.new(0,10+(i-1)*95,0,48),
-202 )
+for i=1,3 do
+    local button = Button(
+        SettingsPanel,
+        "Star"..i,
+        string.rep("★",i),
+        UDim2.new(0,85,0,38),
+        UDim2.new(0,10+(i-1)*95,0,48),
+        202
+    )
 
     button.BackgroundColor3 = StarColors[i]
     StarButtons[i] = button
@@ -739,21 +893,23 @@ string.rep(“★”,i), UDim2.new(0,85,0,38), UDim2.new(0,10+(i-1)*95,0,48),
     button.MouseButton1Click:Connect(function()
         SetStarLevel(i)
     end)
-
 end
 
-–================================================== –
-沙盒专属与交换队伍重生点
-–==================================================
+--==================================================
+-- 沙盒专属与交换队伍重生点
+--==================================================
 
-local SandboxOnly = true local SpawnSwapEnabled = false
+local SandboxOnly = true
+local SpawnSwapEnabled = false
 
-local TextureAsset = “rbxassetid://114504093003897” local
-OriginalTextures = {} local TexturePatched = false
+local TextureAsset = "rbxassetid://114504093003897"
+local OriginalTextures = {}
+local TexturePatched = false
 
-local function PatchOneTexture(obj) if not TexturePatched then return
-end if not (obj:IsA(“Decal”) or obj:IsA(“Texture”)) then return end if
-OriginalTextures[obj] ~= nil then return end
+local function PatchOneTexture(obj)
+    if not TexturePatched then return end
+    if not (obj:IsA("Decal") or obj:IsA("Texture")) then return end
+    if OriginalTextures[obj] ~= nil then return end
 
     local ok,oldTexture = pcall(function()
         return obj.Texture
@@ -766,11 +922,12 @@ OriginalTextures[obj] ~= nil then return end
     pcall(function()
         obj.Texture = TextureAsset
     end)
-
 end
 
-local function SetLocalTexturePatch(enabled) if enabled and not
-TexturePatched then TexturePatched = true table.clear(OriginalTextures)
+local function SetLocalTexturePatch(enabled)
+    if enabled and not TexturePatched then
+        TexturePatched = true
+        table.clear(OriginalTextures)
 
         for _,obj in ipairs(workspace:GetDescendants()) do
             PatchOneTexture(obj)
@@ -789,21 +946,35 @@ TexturePatched then TexturePatched = true table.clear(OriginalTextures)
 
         table.clear(OriginalTextures)
     end
-
 end
 
-workspace.DescendantAdded:Connect(function(obj) if TexturePatched then
-PatchOneTexture(obj) end end)
+workspace.DescendantAdded:Connect(function(obj)
+    if TexturePatched then
+        PatchOneTexture(obj)
+    end
+end)
 
-local SandboxOnlyButton = Button( SettingsPanel, “SandboxOnlyToggle”,
-“沙盒专属：开启”, UDim2.new(1,-20,0,34), UDim2.new(0,10,0,96), 202 )
+local SandboxOnlyButton = Button(
+    SettingsPanel,
+    "SandboxOnlyToggle",
+    "沙盒专属：开启",
+    UDim2.new(1,-20,0,34),
+    UDim2.new(0,10,0,96),
+    202
+)
 
-local SpawnSwapButton = Button( SettingsPanel, “SpawnSwapToggle”,
-“交换队伍重生点：关闭”, UDim2.new(1,-20,0,36), UDim2.new(0,10,0,137),
-202 )
+local SpawnSwapButton = Button(
+    SettingsPanel,
+    "SpawnSwapToggle",
+    "交换队伍重生点：关闭",
+    UDim2.new(1,-20,0,36),
+    UDim2.new(0,10,0,137),
+    202
+)
 
-local function UpdateSandboxButtons() SandboxOnlyButton.Text =
-SandboxOnly and “沙盒专属：开启” or “沙盒专属：关闭”
+local function UpdateSandboxButtons()
+    SandboxOnlyButton.Text =
+        SandboxOnly and "沙盒专属：开启" or "沙盒专属：关闭"
 
     SandboxOnlyButton.BackgroundColor3 =
         SandboxOnly
@@ -819,40 +990,41 @@ SandboxOnly and “沙盒专属：开启” or “沙盒专属：关闭”
         SpawnSwapEnabled
         and Color3.fromRGB(45,125,65)
         or Color3.fromRGB(45,45,45)
-
 end
 
 UpdateSandboxButtons()
 
-SandboxOnlyButton.MouseButton1Click:Connect(function() SandboxOnly = not
-SandboxOnly UpdateSandboxButtons()
+SandboxOnlyButton.MouseButton1Click:Connect(function()
+    SandboxOnly = not SandboxOnly
+    UpdateSandboxButtons()
 
     if SandboxOnly then
         SetLocalTexturePatch(false)
     end
-
 end)
 
-–================================================== – 服务器沙盒设置
-–==================================================
+--==================================================
+-- 服务器沙盒设置
+--==================================================
 
 local SpawnSwapApplied = false
 
-local function GetSandboxSettingsRemote() local events =
-ReplicatedStorage:FindFirstChild(“Events”) local remoteFolder = events
-and events:FindFirstChild(“RemoteFunction”) local remote = remoteFolder
-and remoteFolder:FindFirstChild(“SandboxSettings”)
+local function GetSandboxSettingsRemote()
+    local events = ReplicatedStorage:FindFirstChild("Events")
+    local remoteFolder = events and events:FindFirstChild("RemoteFunction")
+    local remote = remoteFolder and remoteFolder:FindFirstChild("SandboxSettings")
 
     if remote and remote:IsA("RemoteFunction") then
         return remote
     end
 
     return nil
-
 end
 
-local function ApplySpawnSwap(enabled) if enabled == SpawnSwapApplied
-then return end
+local function ApplySpawnSwap(enabled)
+    if enabled == SpawnSwapApplied then
+        return
+    end
 
     local remote = GetSandboxSettingsRemote()
     if not remote then return end
@@ -866,65 +1038,93 @@ then return end
     elseif not success then
         warn("交换队伍重生点设置失败：",result)
     end
-
 end
 
-local function SetSpawnSwap(enabled) SpawnSwapEnabled = enabled
-UpdateSandboxButtons()
+local function SetSpawnSwap(enabled)
+    SpawnSwapEnabled = enabled
+    UpdateSandboxButtons()
 
     if not enabled then
         ApplySpawnSwap(false)
         SetLocalTexturePatch(false)
     end
-
 end
 
-SpawnSwapButton.MouseButton1Click:Connect(function() SetSpawnSwap(not
-SpawnSwapEnabled) end)
+SpawnSwapButton.MouseButton1Click:Connect(function()
+    SetSpawnSwap(not SpawnSwapEnabled)
+end)
 
-–================================================== – 更新日志
-–==================================================
+--==================================================
+-- 更新日志
+--==================================================
 
-local UpdateLogButton = Button( SettingsPanel, “UpdateLogButton”,
-“更新日志”, UDim2.new(1,-20,0,34), UDim2.new(0,10,0,180), 202 )
+local UpdateLogButton = Button(
+    SettingsPanel,
+    "UpdateLogButton",
+    "更新日志",
+    UDim2.new(1,-20,0,34),
+    UDim2.new(0,10,0,180),
+    202
+)
 
-local UpdateLogFrame = Instance.new(“Frame”) UpdateLogFrame.Name =
-“UpdateLogFrame” UpdateLogFrame.Size = UDim2.new(0,280,0,220)
+local UpdateLogFrame = Instance.new("Frame")
+UpdateLogFrame.Name = "UpdateLogFrame"
+UpdateLogFrame.Size = UDim2.new(0,280,0,220)
 UpdateLogFrame.Position = UDim2.new(0.5,-140,0.5,-110)
 UpdateLogFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
-UpdateLogFrame.BorderSizePixel = 0 UpdateLogFrame.Visible = false
-UpdateLogFrame.ZIndex = 400 UpdateLogFrame.Parent = Gui
+UpdateLogFrame.BorderSizePixel = 0
+UpdateLogFrame.Visible = false
+UpdateLogFrame.ZIndex = 400
+UpdateLogFrame.Parent = Gui
 Corner(UpdateLogFrame,10)
 
-Label(UpdateLogFrame,“LogTitle”,“更新日志”,
-UDim2.new(1,-45,0,35),UDim2.new(0,8,0,5),401)
+Label(UpdateLogFrame,"LogTitle","更新日志",
+    UDim2.new(1,-45,0,35),UDim2.new(0,8,0,5),401)
 
-local CloseLog = Button(UpdateLogFrame,“CloseLog”,“X”,
-UDim2.new(0,35,0,28),UDim2.new(1,-40,0,5),405)
+local CloseLog = Button(UpdateLogFrame,"CloseLog","X",
+    UDim2.new(0,35,0,28),UDim2.new(1,-40,0,5),405)
 
-local LogText = Label( UpdateLogFrame, “LogText”, “当前版本更新” ..”1.
-星级选择移入设置面板” ..”2. 一星、二星、三星属性倍率为 ×1、×2、×3” ..”3.
-所有星级资金上限调整为 70000” ..”4. 沙盒状态持续检测” ..”5.
-沙盒专属与交换队伍重生点联动” ..”6. 保留银行、仓库和8个装备卡槽”,
-UDim2.new(1,-20,1,-50), UDim2.new(0,10,0,42), 401 )
+local LogText = Label(
+    UpdateLogFrame,
+    "LogText",
+    "当前版本更新\n\n"
+    .."1. 星级选择移入设置面板\n"
+    .."2. 一星、二星、三星属性倍率为 ×1、×2、×3\n"
+    .."3. 所有星级资金上限调整为 70000\n"
+    .."4. 沙盒状态持续检测\n"
+    .."5. 沙盒专属与交换队伍重生点联动\n"
+    .."6. 保留银行、仓库和8个装备卡槽",
+    UDim2.new(1,-20,1,-50),
+    UDim2.new(0,10,0,42),
+    401
+)
 
-LogText.TextWrapped = true LogText.TextYAlignment =
-Enum.TextYAlignment.Top
+LogText.TextWrapped = true
+LogText.TextYAlignment = Enum.TextYAlignment.Top
 
 UpdateLogButton.MouseButton1Click:Connect(function()
-UpdateLogFrame.Visible = not UpdateLogFrame.Visible end)
+    UpdateLogFrame.Visible = not UpdateLogFrame.Visible
+end)
 
-CloseLog.MouseButton1Click:Connect(function() UpdateLogFrame.Visible =
-false end)
+CloseLog.MouseButton1Click:Connect(function()
+    UpdateLogFrame.Visible = false
+end)
 
-–================================================== – PC端卡槽数字键设置
-–==================================================
+--==================================================
+-- PC端卡槽数字键设置
+--==================================================
 
 local KeyButtons = {}
 
-if IsPC then Label( SettingsPanel, “KeyDescription”,
-“卡槽数字键设置：点击按钮轮换数字键”, UDim2.new(1,-20,0,28),
-UDim2.new(0,10,0,220), 201 )
+if IsPC then
+    Label(
+        SettingsPanel,
+        "KeyDescription",
+        "卡槽数字键设置：点击按钮轮换数字键",
+        UDim2.new(1,-20,0,28),
+        UDim2.new(0,10,0,220),
+        201
+    )
 
     local function RefreshKeyButtons()
         for i=1,8 do
@@ -967,33 +1167,32 @@ UDim2.new(0,10,0,220), 201 )
     end
 
     RefreshKeyButtons()
-
 end
 
 SettingsButton.MouseButton1Click:Connect(function()
-SettingsPanel.Visible = not SettingsPanel.Visible end)
-
-–================================================== –
-持续检测沙盒状态：每秒检查，不依赖开关点击
-–==================================================
-
-task.spawn(function() while Gui.Parent do local stateOK,gameValues =
-pcall(function() return require(ReplicatedStorage.Modules.GameValues)
+    SettingsPanel.Visible = not SettingsPanel.Visible
 end)
+
+--==================================================
+-- 持续检测沙盒状态：每秒检查，不依赖开关点击
+--==================================================
+
+task.spawn(function()
+    while Gui.Parent do
+        local stateOK,gameValues = pcall(function()
+            return require(ReplicatedStorage.Modules.GameValues)
+        end)
 
         if stateOK and type(gameValues) == "table" then
             local isSandbox = gameValues.IsSandbox == true
             local inStage = gameValues.InStage == true
 
             if SpawnSwapEnabled and isSandbox and inStage then
-                -- 仅在沙盒战斗中启用服务器设置
                 SetLocalTexturePatch(false)
                 ApplySpawnSwap(true)
             else
-                -- 离开沙盒战斗或关闭开关时，撤销服务器设置
                 ApplySpawnSwap(false)
 
-                -- 关闭“沙盒专属”后，非沙盒状态只替换本地贴图
                 if SpawnSwapEnabled and not isSandbox and not SandboxOnly then
                     SetLocalTexturePatch(true)
                 else
@@ -1001,7 +1200,6 @@ end)
                 end
             end
         else
-            -- 无法读取状态时不贸然修改贴图，并尝试撤销已启用的服务器设置
             SetLocalTexturePatch(false)
             ApplySpawnSwap(false)
         end
@@ -1011,17 +1209,18 @@ end)
 
     SetLocalTexturePatch(false)
     ApplySpawnSwap(false)
-
 end)
 
-–================================================== – PC数字键监听
-–==================================================
+--==================================================
+-- PC数字键监听
+--==================================================
 
 if IsPC then
-UserInputService.InputBegan:Connect(function(input,gameProcessed) if
-gameProcessed then return end if UserInputService:GetFocusedTextBox()
-then return end if SettingsPanel.Visible then return end if
-Warehouse.Visible then return end
+    UserInputService.InputBegan:Connect(function(input,gameProcessed)
+        if gameProcessed then return end
+        if UserInputService:GetFocusedTextBox() then return end
+        if SettingsPanel.Visible then return end
+        if Warehouse.Visible then return end
 
         for i=1,8 do
             if input.KeyCode == SlotKeyCodes[SlotKeys[i]] then
@@ -1030,14 +1229,15 @@ Warehouse.Visible then return end
             end
         end
     end)
-
 end
 
-–================================================== – 银行升级
-–==================================================
+--==================================================
+-- 银行升级
+--==================================================
 
-UpgradeButton.MouseButton1Click:Connect(function() if not Running then
-return end if Level >= MaxLevel then return end
+UpgradeButton.MouseButton1Click:Connect(function()
+    if not Running then return end
+    if Level >= MaxLevel then return end
 
     local cost = UpgradeCosts[Level+1]
 
@@ -1046,14 +1246,18 @@ return end if Level >= MaxLevel then return end
         Level += 1
         UpdateMoney()
     end
-
 end)
 
-–================================================== – 停止
-–==================================================
+--==================================================
+-- 停止
+--==================================================
 
-StopButton.MouseButton1Click:Connect(function() Running = false Level =
-0 Money = 600 MaxMoney = 70000 SelectedUnit = nil
+StopButton.MouseButton1Click:Connect(function()
+    Running = false
+    Level = 0
+    Money = 600
+    MaxMoney = 70000
+    SelectedUnit = nil
 
     for _,unit in ipairs(Units) do
         unit.Last = nil
@@ -1063,14 +1267,14 @@ StopButton.MouseButton1Click:Connect(function() Running = false Level =
     UpdateSlots()
     UpdateWarehouse()
     UpdateStars()
-
 end)
 
-–================================================== – 开始
-–==================================================
+--==================================================
+-- 开始
+--==================================================
 
-StartButton.MouseButton1Click:Connect(function() if Running then return
-end
+StartButton.MouseButton1Click:Connect(function()
+    if Running then return end
 
     Running = true
     SelectedUnit = nil
@@ -1087,18 +1291,21 @@ end
     UpdateSlots()
     UpdateWarehouse()
     UpdateStars()
-
 end)
 
-–================================================== – 隐藏 / 显示
-–==================================================
+--==================================================
+-- 隐藏 / 显示
+--==================================================
 
 local Hidden = false
 
-local HideButton = Button(Gui,“HideButton”,“隐藏”, UDim2.new(0,85,0,35),
-UDim2.new(1,-95,0,135),1000000) HideButton.ZIndex = 1000000
+local HideButton = Button(Gui,"HideButton","隐藏",
+    UDim2.new(0,85,0,35),
+    UDim2.new(1,-95,0,135),1000000)
+HideButton.ZIndex = 1000000
 
-HideButton.MouseButton1Click:Connect(function() Hidden = not Hidden
+HideButton.MouseButton1Click:Connect(function()
+    Hidden = not Hidden
 
     Bank.Visible = not Hidden
     StartButton.Visible = not Hidden
@@ -1111,18 +1318,19 @@ HideButton.MouseButton1Click:Connect(function() Hidden = not Hidden
     end
 
     Warehouse.Visible = false
-
     SettingsPanel.Visible = false
     UpdateLogFrame.Visible = false
 
     HideButton.Text = Hidden and "显示" or "隐藏"
-
 end)
 
-–================================================== – 银行收入
-–==================================================
+--==================================================
+-- 银行收入
+--==================================================
 
-task.spawn(function() while Gui.Parent do task.wait(0.1)
+task.spawn(function()
+    while Gui.Parent do
+        task.wait(0.1)
 
         if Running then
             Money = math.min(
@@ -1133,281 +1341,50 @@ task.spawn(function() while Gui.Parent do task.wait(0.1)
             UpdateMoney()
         end
     end
-
 end)
 
-–================================================== – 冷却刷新
-–==================================================
+--==================================================
+-- 冷却刷新
+--==================================================
 
-task.spawn(function() while Gui.Parent do UpdateSlots() task.wait(0.1)
-end end)
-
-–================================================== – 初始化
-–==================================================
-
-UpdateMoney() UpdateSlots() UpdateWarehouse() UpdateStars()
-
-print(“银行 + 仓库 + 8卡槽 + 星级系统加载完成”)
-print(“单位总数：”..#Units)
-
-–[[ Times Illusion 登场音乐 v4 (客户端，含音频自动下载 + 死亡停音乐)
-用法： getgenv().TimesIllusionPlay() – 手动播一次（无视 oncePerGame）
-getgenv().TimesIllusionStopAll() – 立刻停全部音乐
-getgenv().TimesIllusionReload() – 重新检查/下载音频并重建 SoundId
-getgenv().TimesIllusionCfg.stopOnBaseRemoved = false
-getgenv().TimesIllusionCfg.stopOnUnitDeath = false –
-关掉”单位死亡停音乐” getgenv().__TI_Cleanup() – 全部卸载 –]]
-
-local SoundService = game:GetService(“SoundService”)
-
-local cfg = { path = “Times_Illusion_from_19s.mp3”, units = {“Chronos”},
-anyUnit = false, volume = 2, oncePerGame = true, stopMusic = true,
-stopOnBaseRemoved = true, baseNames = {“Base”, “BaseCore”, “BaseHealth”,
-“Goal”, “Nexus”}, settleDelay = 0.8, soundName = “TimesIllusion_Once”,
-
-    ---- 新增：单位死亡相关 ----
-    stopOnUnitDeath  = true,
-    replayAfterDeath = true,
-
-    -- 下载相关
-    downloadUrl  = "",
-    autoDownload = true,
-    forceDownload = false,
-    minBytes     = 20 * 1024,
-    androidDir   = "/storage/emulated/0/Delta/Workspace",
-
-} getgenv().TimesIllusionCfg = cfg
-
-–====================== 音频文件自动下载 ======================– local
-function fileSize(p) local ok, d = pcall(readfile, p) if ok and type(d)
-== “string” then return #d end return -1 end
-
-local function ensureDir() if type(isfolder) ~= “function” or
-type(makefolder) ~= “function” then return end pcall(function() if not
-isfolder(“/storage/emulated/0/Delta”) then
-makefolder(“/storage/emulated/0/Delta”) end if not
-isfolder(cfg.androidDir) then makefolder(cfg.androidDir) end end) end
-
-local function fetchBody(url) local env = (getgenv and getgenv()) or {}
-local req = rawget(env, “request”) or request if type(req) == “function”
-then local ok, r = pcall(req, {Url = url, Method = “GET”}) if ok and
-type(r) == “table” and type(r.Body) == “string” and #r.Body > 0 then
-return r.Body end end local hr = rawget(env, “http_request”) or
-http_request if type(hr) == “function” then local ok, r = pcall(hr, {Url
-= url, Method = “GET”}) if ok and type(r) == “table” and type(r.Body) ==
-“string” and #r.Body > 0 then return r.Body end local ok2, r2 =
-pcall(hr, url, “GET”) if ok2 and type(r2) == “string” and #r2 > 0 then
-return r2 end end if game.HttpGet then local ok, r = pcall(function()
-return game:HttpGet(url, true) end) if ok and type(r) == “string” and
-#r > 0 then return r end end return nil end
-
-local audioFile, audioWhy = nil, “未检查”
-
-local function ensureAudioFile() if not cfg.forceDownload then local
-size = fileSize(cfg.path) if size >= cfg.minBytes then return cfg.path,
-(“已存在 %d 字节，跳过下载”):format(size) end end if not
-cfg.autoDownload then return fileSize(cfg.path) > 0 and cfg.path or nil,
-“文件缺失且 autoDownload = false” end if cfg.downloadUrl == “” then
-local size = fileSize(cfg.path) if size > 0 then return cfg.path,
-(“已存在 %d 字节（未配置下载地址）”):format(size) end return nil,
-“文件缺失，且 cfg.downloadUrl 未填写” end
-
-    ensureDir()
-    print("[TI] 开始下载音频: " .. cfg.downloadUrl)
-    local body = fetchBody(cfg.downloadUrl)
-    if not body then
-        return nil, "下载失败（HTTP 无返回，检查直链/执行器 Http 权限）"
+task.spawn(function()
+    while Gui.Parent do
+        UpdateSlots()
+        task.wait(0.1)
     end
-    if #body < cfg.minBytes then
-        return nil, ("下载内容过小 (%d 字节)，可能是错误页"):format(#body)
-    end
+end)
 
-    local ok1, err1 = pcall(writefile, cfg.path, body)
-    if ok1 and fileSize(cfg.path) >= cfg.minBytes then
-        print(("[TI] 下载完成 -> %s (%d 字节)"):format(cfg.path, #body))
-        return cfg.path, "已下载"
-    end
+--==================================================
+-- 初始化
+--==================================================
 
-    local abs = cfg.androidDir .. "/" .. cfg.path
-    local ok2, err2 = pcall(writefile, abs, body)
-    if ok2 and fileSize(abs) >= cfg.minBytes then
-        print(("[TI] 下载完成 -> %s (%d 字节)"):format(abs, #body))
-        return abs, "已下载（绝对路径）"
-    end
+UpdateMoney()
+UpdateSlots()
+UpdateWarehouse()
+UpdateStars()
 
-    return nil, "写入失败: " .. tostring(err1) .. " / " .. tostring(err2)
+print("银行 + 仓库 + 8卡槽 + 星级系统加载完成")
+print("单位总数："..#Units)
 
-end
+--==================================================
+-- 自动加载并运行 Times Illusion（999.lua）
+--==================================================
 
-audioFile, audioWhy = ensureAudioFile() print(“[TI] 音频检查:” ..
-tostring(audioWhy))
-–============================================================–
+task.spawn(function()
+    local success, err = pcall(function()
+        local source = game:HttpGet(
+            "https://raw.githubusercontent.com/jiyudanj-stack/-78/main/999.lua"
+        )
 
-if getgenv().__TI_Cleanup then pcall(getgenv().__TI_Cleanup) end
+        assert(type(source) == "string" and #source > 0, "999.lua 内容为空")
 
-local conns = {} local function track(c) if c then conns[#conns + 1] = c
-end return c end
+        local chunk, compileError = loadstring(source)
+        assert(chunk, compileError or "loadstring 编译失败")
 
-local soundId
-
-local function buildSoundId() local target = audioFile or cfg.path local
-ok, res = pcall(getcustomasset, target) if ok then soundId = res return
-true, nil end soundId = nil local msg = tostring(res) .. ” | 文件检查: ”
-.. tostring(audioWhy) .. ” | 目标: ” .. tostring(target) .. ” |
-文件必须位于执行器 workspace 目录: ” .. tostring(cfg.path) warn(“[TI]
-getcustomasset 失败:” .. msg) return false, msg end
-
-buildSoundId()
-
-local current, played = nil, false
-
-local function destroySound(s) if s and s.Parent then pcall(function()
-s:Destroy() end) end end
-
-local function stopAllMusic() for _, d in
-ipairs(SoundService:GetDescendants()) do if d:IsA(“Sound”) and
-d.IsPlaying then pcall(function() d:Stop() end) end end end
-
-local function stopMusicNow() if current then destroySound(current);
-current = nil end stopAllMusic() end
-
-local function play(force) if not soundId then return nil, “SoundId
-未就绪（getcustomasset 失败）” end if cfg.oncePerGame and played and not
-force then return nil, “本局已播过” end played = true
-
-    if cfg.stopMusic then stopAllMusic() end
-
-    destroySound(current)
-    for _, d in ipairs(SoundService:GetChildren()) do
-        if d:IsA("Sound") and d.Name == cfg.soundName then destroySound(d) end
-    end
-
-    local s = Instance.new("Sound")
-    current = s
-    pcall(function()
-        s.Name    = cfg.soundName
-        s.SoundId = soundId
-        s.Volume  = cfg.volume
-        s.Looped  = false
-        s.Parent  = SoundService
+        chunk()
     end)
 
-    track(s.Ended:Once(function()
-        if current == s then current = nil end
-        destroySound(s)
-    end))
-
-    s:Play()
-    return s
-
-end
-
-local function isUnit(m) if not m:IsA(“Model”) then return false end if
-not (m:FindFirstChildOfClass(“Humanoid”) or
-m:FindFirstChild(“HumanoidRootPart”)) then return false end if
-cfg.anyUnit then return true end for _, n in ipairs(cfg.units) do if
-m.Name == n then return true end end return false end
-
-local function resetHandled() _G.__TI_handled = setmetatable({}, {__mode
-= “k”}) return _G.__TI_handled end local handled = resetHandled()
-
-–====================== 单位死亡监听 ======================– local
-function anyUnitAlive() for m in pairs(handled) do if m and m.Parent
-then return true end end return false end
-
-local function onUnitGone(m, why) if not m then return end handled[m] =
-nil
-
-    if cfg.stopOnUnitDeath then
-        print(("[TI] 单位 %s %s，停止音乐"):format(m.Name, tostring(why or "消失")))
-        stopMusicNow()
+    if not success then
+        warn("[Times Illusion] 自动加载失败：", err)
     end
-
-    if cfg.replayAfterDeath and not anyUnitAlive() then
-        played = false
-    end
-
-end
-
-local function hookUnit(m) if not cfg.stopOnUnitDeath then return end if
-m:GetAttribute(“TI_deathHooked”) then return end
-
-    local hum = m:FindFirstChildOfClass("Humanoid")
-    if not hum then
-        task.delay(cfg.settleDelay, function()
-            if m.Parent then hookUnit(m) end
-        end)
-        return
-    end
-    if m:GetAttribute("TI_deathHooked") then return end
-    m:SetAttribute("TI_deathHooked", true)
-
-    local done = false
-    local function fire(why)
-        if done then return end
-        done = true
-        pcall(function() m:SetAttribute("TI_deathHooked", false) end)
-        onUnitGone(m, why)
-    end
-
-    pcall(function()
-        track(hum.Died:Connect(function() fire("死亡") end))
-        track(hum:GetPropertyChangedSignal("Health"):Connect(function()
-            if hum.Health <= 0 then fire("死亡") end
-        end))
-    end)
-    track(m.Destroying:Connect(function() fire("被移除") end))
-    track(m.AncestryChanged:Connect(function(_, parent)
-        if not parent then fire("被移除") end
-    end))
-
-end –==========================================================–
-
-local function check(m) if not isUnit(m) then return false end
-hookUnit(m) if handled[m] then return false end handled[m] = true if not
-soundId then buildSoundId() end play() return true end
-
-track(workspace.DescendantAdded:Connect(function(inst) if
-inst:IsA(“Model”) then if check(inst) then return end
-task.delay(cfg.settleDelay, function() if inst.Parent then check(inst)
-end end) elseif inst:IsA(“Humanoid”) or inst:IsA(“BasePart”) then
-task.delay(cfg.settleDelay, function() local m =
-inst:FindFirstAncestorOfClass(“Model”) if m and m.Parent then check(m)
-end end) end end))
-
-getgenv().TimesIllusionScan = function() for _, m in
-ipairs(workspace:GetDescendants()) do if m:IsA(“Model”) then check(m)
-end end end getgenv().TimesIllusionScan()
-
-local function isBase(m) local lname = string.lower(m.Name) for _, n in
-ipairs(cfg.baseNames) do if lname == string.lower(n) then return true
-end end return string.find(lname, “base”, 1, true) ~= nil end
-
-track(workspace.DescendantRemoving:Connect(function(inst) if not
-cfg.stopOnBaseRemoved then return end if inst:IsA(“Model”) and
-isBase(inst) then getgenv().TimesIllusionStopAll() played = false
-handled = resetHandled() end end))
-
-getgenv().TimesIllusionPlay = function() return play(true) end
-getgenv().TimesIllusionStop = function() if current then
-pcall(function() current:Stop() end) end end
-getgenv().TimesIllusionStopAll = function() stopMusicNow() end
-
-getgenv().TimesIllusionReload = function() audioFile, audioWhy =
-ensureAudioFile() print(“[TI] 重新检查:” .. tostring(audioWhy)) local
-ok, msg = buildSoundId() return ok, msg end
-
-getgenv()._TI_Cleanup = function() for , c in ipairs(conns) do
-pcall(function() c:Disconnect() end) end conns = {} if current then
-destroySound(current); current = nil end getgenv().TimesIllusionPlay =
-nil getgenv().TimesIllusionStopAll = nil getgenv().TimesIllusionStop =
-nil getgenv().TimesIllusionScan = nil getgenv().TimesIllusionReload =
-nil getgenv().TimesIllusionCleanup = nil getgenv().__TI_Cleanup = nil
-print(“[TI] 已卸载”) end
-
-getgenv().TimesIllusionCleanup = function() getgenv().__TI_Cleanup() end
-
-print(“[TI] 已挂载 | 触发单位:” .. (cfg.anyUnit and “(任意单位)” or
-table.concat(cfg.units, “,”)) .. ” | 死亡停乐: ” ..
-tostring(cfg.stopOnUnitDeath) .. ” | 音频: ” .. tostring(audioWhy) .. ”
-| SoundId: ” .. tostring(soundId))
+end)
