@@ -312,47 +312,47 @@ local function isBase(m)
 end
 
 track(workspace.DescendantRemoving:Connect(function(inst)
-    如果      不..toString(audioWhy)..not cfg.stopOnBaseRemoved then return end
-如果inst:Isa("型号")和isBase(inst)，则ifinst:Isa("Model")and isBase(inst)则if inst:IsA("Model") and isBase(inst) then
-getgenv().TimesIllusionStopAll()
-played=false
-handled=resetHandled()
-结束endend
-结束))))
+    if not cfg.stopOnBaseRemoved then return end
+    if inst:IsA("Model") and isBase(inst) then
+        getgenv().TimesIllusionStopAll()
+        played = false
+        handled = resetHandled()
+    end
+end))
 
-getgenv().TimesIllusionPlay=函数()返回play(true)结束函数()返回间隙(真)结束true)结束function() return play(true) end
-getgenv().TimesIllusionStop=函数()函数()function()
-如果当前，则pcall(功能()电流：停止()结束)结束if current then pcall(function()current:Stop()end)endif current then pcall(function() current:Stop() end) end
-结束
-getgenv().TimesIllusionStopAll=函数()函数()function()
-stopMusicNow()
-结束
+getgenv().TimesIllusionPlay = function() return play(true) end
+getgenv().TimesIllusionStop = function()
+    if current then pcall(function() current:Stop() end) end
+end
+getgenv().TimesIllusionStopAll = function()
+    stopMusicNow()
+end
 
-getgenv().TimesIllusionReload=函数()函数()function()
-AudioFile，audioWhy=确保音频文件()
-打印("[TI]重新检查："..toString(audioWhy)"[TI]重新检查："..toString(audioWhy)"[TI]重新检查："..toString(audioWhy)"[TI] 重新检查: " .. tostring(audioWhy))
-本地正常，消息=buildSoundId()本地ok，消息=buildSoundId()local ok, msg = buildSoundId()
-返回确定，消息返回确定，消息return ok, msg
-结束
+getgenv().TimesIllusionReload = function()
+    audioFile, audioWhy = ensureAudioFile()
+    print("[TI] 重新检查: " .. tostring(audioWhy))
+    local ok, msg = buildSoundId()
+    return ok, msg
+end
 
-getgenv().__TI_Cleanup=函数()函数()function()
-    for _, c in ipairs(conns) do pcall(function() c:Disconnect() end) endfor _, c in ipairs(conns) do pcall(function() c:Disconnect() end) endfor _, c in ipairs(conns) do pcall(function() c:Disconnect() end) endfor _, c in ipairs(conns) do pcall(function() c:Disconnect() end) end
-Conns={}
-如果当前，则destroySound(当前)；当前=nil结束如果当前，则destroySound(当前)；当前=nil结束nil结束if current then destroySound(current); current = nil end
-getgenv().TimesIllusionPlay=nilnil
-getgenv().TimesIllusionStopAll=nilnil
-getgenv().TimesIllusionStop=nilnil
-getgenv().TimesIllusionScan=nilnil
-getgenv().TimesIllusionReload=nilnil
-getgenv().TimesIllusionCleanup=零
-getgenv().__TI_Cleanup=零
-print("[TI]已卸载")"[TI]已卸载")"[TI]已卸载")"[TI] 已卸载")
-结束
+getgenv().__TI_Cleanup = function()
+    for _, c in ipairs(conns) do pcall(function() c:Disconnect() end) end
+    conns = {}
+    if current then destroySound(current); current = nil end
+    getgenv().TimesIllusionPlay    = nil
+    getgenv().TimesIllusionStopAll = nil
+    getgenv().TimesIllusionStop    = nil
+    getgenv().TimesIllusionScan    = nil
+    getgenv().TimesIllusionReload  = nil
+    getgenv().TimesIllusionCleanup = nil
+    getgenv().__TI_Cleanup         = nil
+    print("[TI] 已卸载")
+end
 
-timesIllusionCleanup=函数()getgenv()。__TI_Cleanup()结束函数()getgenv()。__TI_Cleanup()结束function() getgenv().__TI_Cleanup() end
+getgenv().TimesIllusionCleanup = function() getgenv().__TI_Cleanup() end
 
-打印("[TI]已挂载|触发单位："...."[TI]已挂载|触发单位：".. ..
-(cfg.anyUnit和"(任意单位)"或table.concat(cfg.单位，"，"))。和"(任意单位)"或table.concat(cfg.units，"，"))。"(任意单位)"或table.concat(cfg.units，"，"))。and "(任意单位)" or table.concat(cfg.units, ", ")) ..
-"|死亡停乐："..toString(cfg.stopOnUnitDeath).."|死亡停乐："..toString(cfg.stopOnUnitDeath)....toString(cfg.stopOnUnitDeath).." | 死亡停乐: " .. tostring(cfg.stopOnUnitDeath) ..
-“|声：”...tostring(audioWhy).."|声音："...tostring(audioWhy).....tostring(audioWhy).." | 音频: "..toString(audioWhy)..
-“|SoundId：”。。toString(soundId)“”|SoundId：“”。。toString(soundId)
+print("[TI] 已挂载 | 触发单位: " ..
+      (cfg.anyUnit and "(任意单位)" or table.concat(cfg.units, ", ")) ..
+      " | 死亡停乐: " .. tostring(cfg.stopOnUnitDeath) ..
+      " | 音频: " .. tostring(audioWhy) ..
+      " | SoundId: " .. tostring(soundId))
