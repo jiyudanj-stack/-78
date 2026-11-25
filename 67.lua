@@ -37,7 +37,7 @@ local StarLevel = 1
 local StarMultipliers = {
     [1] = 1,
     [2] = 1.5,
-    [3] = 2
+    [3] = 3
 }
 
 local StarButtons = {}
@@ -124,6 +124,7 @@ local Units = {
     -- 天使
     {Name="诺曼",ID=104,Rank="B",Amount=2,Price=2000,Cooldown=15,Image=76163313488934,Category="天使",Args={Health=650,Damage=80}},
     {Name="审判",ID=115,Rank="B",Amount=6,Price=2000,Cooldown=50,Image=76008989733506,Category="天使",Args={Health=300,Damage=60}},
+    {Name="斯温伯恩",ID=141,Rank="A",Amount=2,Price=300,Cooldown=15,Image=81706288686123,Category="天使",Args={Health=168}},
     {Name="克罗诺斯",ID=122,Rank="B",Amount=5,Price=22500,Cooldown=600,Image=125817598848664,Category="天使",Args={Health=3000,Damage=50}},
     {Name="Pwnsalot",ID=101,Rank="B",Amount=5,Price=1200,Cooldown=15,Image=100746586925732,Category="天使",Args={Health=80,Damage=100}},
     {Name="维京人",ID=104,Rank="A",Amount=4,Price=2000,Cooldown=15,Image=132758376686081,Category="天使",Args={Health=200,Damage=50}},
@@ -153,7 +154,9 @@ local Units = {
     {Name="地狱火",ID=40,Rank="B",Amount=4,Price=12000,Cooldown=500,Image=95516325060350,Category="地狱",Args={Health=6000,Damage=20}},
     {Name="雇佣兵",ID=32,Rank="B",Amount=5,Price=300,Cooldown=10,Image=121186955802358,Category="地狱",Args={Health=60,Damage=6}},
     {Name="瓶装",ID=88,Rank="B",Amount=8,Price=600,Cooldown=15,Image=109161080608846,Category="地狱",Args={Health=80,Damage=15}}
-}--==================================================
+}
+
+--==================================================
 -- 卡槽数据
 --==================================================
 
@@ -747,7 +750,6 @@ for i=1,8 do
     card.LayoutOrder = i
     card.BackgroundColor3 = Color3.fromRGB(20,35,50)
 
-    -- 青蓝色边框
     local border = Instance.new("UIStroke")
     border.Color = Color3.fromRGB(0,190,220)
     border.Thickness = 2
@@ -761,596 +763,449 @@ for i=1,8 do
     icon.Visible = false
     icon.ZIndex = 102
     icon.Parent = card
-    Corner(icon,7)local nameText = Label(card,"NameText","",
-        UDim2.new(1,0,0,15),
-        UDim2.new(0,0,0,0),107)
-    nameText.BackgroundColor3 = Color3.fromRGB(0,0,0)
-    nameText.BackgroundTransparency = 0.25
-    nameText.TextColor3 = Color3.new(1,1,1)
-    nameText.Visible = false
+    Corner(icon,7)--==================================================
+-- 卡槽内容
+--==================================================
 
-    local priceText = Instance.new("TextLabel")
-    priceText.Name = "PriceText"
-    priceText.Size = UDim2.new(1,0,0,18)
-    priceText.Position = UDim2.new(0,0,1,-18)
-    priceText.BackgroundColor3 = Color3.fromRGB(0,0,0)
-    priceText.BackgroundTransparency = 0.2
-    priceText.TextColor3 = Color3.fromRGB(255,190,35)
-    priceText.TextStrokeTransparency = 0
-    priceText.TextScaled = true
-    priceText.Font = Enum.Font.GothamBold
-    priceText.ZIndex = 107
-    priceText.Visible = false
-    priceText.Parent = card
+local nameText = Label(card,"NameText","空槽")
+nameText.Size = UDim2.new(1,-8,0,20)
+nameText.Position = UDim2.new(0,4,0,4)
+nameText.TextScaled = true
+nameText.ZIndex = 103
+nameText.Parent = card
 
-    local cooldownMask = Instance.new("Frame")
-    cooldownMask.Name = "CooldownMask"
-    cooldownMask.Size = UDim2.new(1,0,1,0)
-    cooldownMask.BackgroundColor3 = Color3.fromRGB(0,0,0)
-    cooldownMask.BackgroundTransparency = 0.48
-    cooldownMask.BorderSizePixel = 0
-    cooldownMask.ClipsDescendants = true
-    cooldownMask.Visible = false
-    cooldownMask.ZIndex = 104
-    cooldownMask.Parent = card
-    Corner(cooldownMask,7)
+local priceText = Label(card,"PriceText","")
+priceText.Size = UDim2.new(0.65,0,0,18)
+priceText.Position = UDim2.new(0,4,1,-22)
+priceText.TextScaled = true
+priceText.TextXAlignment = Enum.TextXAlignment.Left
+priceText.ZIndex = 103
+priceText.Parent = card
 
-    local cooldownFill = Instance.new("Frame")
-    cooldownFill.Size = UDim2.new(1,0,1,0)
-    cooldownFill.BackgroundColor3 = Color3.fromRGB(130,130,130)
-    cooldownFill.BackgroundTransparency = 0.25
-    cooldownFill.BorderSizePixel = 0
-    cooldownFill.ZIndex = 105
-    cooldownFill.Parent = cooldownMask
+local cooldownMask = Instance.new("Frame")
+cooldownMask.Name = "CooldownMask"
+cooldownMask.Size = UDim2.new(1,0,1,0)
+cooldownMask.BackgroundColor3 = Color3.new(0,0,0)
+cooldownMask.BackgroundTransparency = 0.45
+cooldownMask.Visible = false
+cooldownMask.ZIndex = 104
+cooldownMask.Parent = card
 
-    local cooldownText = Label(cooldownMask,"CooldownText","",
-        UDim2.new(1,0,0,25),
-        UDim2.new(0,0,0.5,-12),106)
+local cooldownFill = Instance.new("Frame")
+cooldownFill.Name = "CooldownFill"
+cooldownFill.AnchorPoint = Vector2.new(0,1)
+cooldownFill.Position = UDim2.new(0,0,1,0)
+cooldownFill.Size = UDim2.new(1,0,1,0)
+cooldownFill.BackgroundColor3 = Color3.fromRGB(255,190,50)
+cooldownFill.BorderSizePixel = 0
+cooldownFill.ZIndex = 105
+cooldownFill.Parent = cooldownMask
 
-    cooldownText.TextStrokeTransparency = 0
+local cooldownText = Label(cooldownMask,"CooldownText","")
+cooldownText.Size = UDim2.new(1,0,0,24)
+cooldownText.Position = UDim2.new(0,0,0.5,-12)
+cooldownText.TextScaled = true
+cooldownText.TextColor3 = Color3.new(1,1,1)
+cooldownText.ZIndex = 106
+cooldownText.Parent = cooldownMask
 
-    SlotCards[i] = {
-        Button = card,
-        Icon = icon,
-        NameText = nameText,
-        PriceText = priceText,
-        CooldownMask = cooldownMask,
-        CooldownFill = cooldownFill,
-        CooldownText = cooldownText
-    }
+local clickButton = Instance.new("TextButton")
+clickButton.Name = "SlotClick"
+clickButton.Size = UDim2.new(1,0,1,0)
+clickButton.BackgroundTransparency = 1
+clickButton.Text = ""
+clickButton.ZIndex = 110
+clickButton.Parent = card
 
-    card.MouseButton1Click:Connect(function()
+clickButton.MouseButton1Click:Connect(function()
+    if SlotCards[i] then
         ActivateSlot(i)
-    end)
-end
-
---==================================================
--- 设置面板：星级 + 沙盒选项 + 更新日志 + 按键
---==================================================
-
-local SettingsButton = Button(Gui,"SettingsButton","设置",
-    UDim2.new(0,85,0,35),
-    UDim2.new(1,-185,0,90),1000)
-
-local SettingsPanel = Instance.new("Frame")
-SettingsPanel.Name = "SettingsPanel"
-SettingsPanel.Size = UDim2.new(0,300,0,520)
-SettingsPanel.Position = UDim2.new(0.5,-150,0.5,-260)
-SettingsPanel.BackgroundColor3 = Color3.fromRGB(20,20,20)
-SettingsPanel.BorderSizePixel = 0
-SettingsPanel.Visible = false
-SettingsPanel.ZIndex = 200
-SettingsPanel.Parent = Gui
-Corner(SettingsPanel,10)
-
-Label(SettingsPanel,"Title","设置",
-    UDim2.new(1,-45,0,38),UDim2.new(0,8,0,5),201)
-
-local CloseSettings = Button(SettingsPanel,"CloseSettings","X",
-    UDim2.new(0,35,0,30),UDim2.new(1,-40,0,5),205)
-
-CloseSettings.MouseButton1Click:Connect(function()
-    SettingsPanel.Visible = false
+    end
 end)
 
---==================================================
--- 星级选择：只能在停止状态修改
---==================================================
+table.insert(SlotCards,{
+    Card = card,
+    Icon = icon,
+    Name = nameText,
+    Price = priceText,
+    CooldownMask = cooldownMask,
+    CooldownFill = cooldownFill,
+    CooldownText = cooldownText,
+})
 
-local StarColors = {
-    Color3.fromRGB(0,190,255),
-    Color3.fromRGB(255,160,0),
-    Color3.fromRGB(255,45,45)
-}
-
-local function SetStarLevel(level)
-    if Running then return end
-    if not StarMultipliers[level] then return end
-
-    StarLevel = level
-    MaxMoney = 70000
-    Money = math.min(Money,MaxMoney)
-
-    UpdateStars()
-    UpdateMoney()
-    UpdateSlots()
-    UpdateWarehouse()
 end
 
-for i=1,3 do
-    local button = Button(
-        SettingsPanel,
-        "Star"..i,
-        string.rep("★",i),
-        UDim2.new(0,85,0,38),
-        UDim2.new(0,10+(i-1)*95,0,48),
-        202
-    )
+--==================================================
+-- 星级选择按钮
+--==================================================
 
-    button.BackgroundColor3 = StarColors[i]
-    StarButtons[i] = button
+local StarButtonFrame = Instance.new("Frame")
+StarButtonFrame.Name = "StarButtonFrame"
+StarButtonFrame.Size = UDim2.new(0,210,0,42)
+StarButtonFrame.Position = UDim2.new(0,10,1,-52)
+StarButtonFrame.BackgroundTransparency = 1
+StarButtonFrame.Parent = StartButton.Parent
+
+local starLayout = Instance.new("UIListLayout")
+starLayout.FillDirection = Enum.FillDirection.Horizontal
+starLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+starLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+starLayout.Padding = UDim.new(0,6)
+starLayout.Parent = StarButtonFrame
+
+for star = 1,3 do
+    local button = Instance.new("TextButton")
+    button.Name = "Star"..star
+    button.Size = UDim2.new(0,62,0,34)
+    button.BackgroundColor3 = Color3.fromRGB(55,55,65)
+    button.TextColor3 = Color3.new(1,1,1)
+    button.TextScaled = true
+    button.Font = Enum.Font.GothamBold
+    button.Text = string.rep("★",star)
+    button.Parent = StarButtonFrame
+
+    Corner(button,7)
+
+    StarButtons[star] = button
 
     button.MouseButton1Click:Connect(function()
-        SetStarLevel(i)
-    end)
-end
-
---==================================================
--- 沙盒专属与交换队伍重生点
---==================================================
-
-local SandboxOnly = true
-local SpawnSwapEnabled = false
-
-local TextureAsset = "rbxassetid://114504093003897"
-local OriginalTextures = {}
-local TexturePatched = false
-
-local function PatchOneTexture(obj)
-    if not TexturePatched then return end
-    if not (obj:IsA("Decal") or obj:IsA("Texture")) then return end
-    if OriginalTextures[obj] ~= nil then return end
-
-    local ok,oldTexture = pcall(function()
-        return obj.Texture
-    end)
-
-    if not ok then return end
-
-    OriginalTextures[obj] = oldTexture
-
-    pcall(function()
-        obj.Texture = TextureAsset
-    end)
-end
-
-local function SetLocalTexturePatch(enabled)
-    if enabled and not TexturePatched then
-        TexturePatched = true
-        table.clear(OriginalTextures)
-
-        for _,obj in ipairs(workspace:GetDescendants()) do
-            PatchOneTexture(obj)
+        if Running then
+            return
         end
 
-    elseif not enabled and TexturePatched then
-        TexturePatched = false
+        StarLevel = star
+        UpdateStars()
+        UpdateSlots()
+        UpdateWarehouse()
+    end)
+end
 
-        for obj,oldTexture in pairs(OriginalTextures) do
-            if obj and obj.Parent then
-                pcall(function()
-                    obj.Texture = oldTexture
-                end)
+--==================================================
+-- 星级倍率
+--==================================================
+
+local StarMultipliers = {
+    [1] = 1,
+    [2] = 1.5,
+    [3] = 2,
+}
+
+local function CopyAndScaleArgs(source,multiplier)
+    local result = {}
+
+    for key,value in pairs(source or {}) do
+        if type(value) == "number" then
+            result[key] = value * multiplier
+
+        elseif type(value) == "table" then
+            result[key] = CopyAndScaleArgs(value,multiplier)
+
+        else
+            result[key] = value
+        end
+    end
+
+    return result
+end
+
+local function GetScaledArgs(unit)
+    local multiplier = StarMultipliers[StarLevel] or 1
+    return CopyAndScaleArgs(unit.Args,multiplier)
+end
+
+--==================================================
+-- 更新星级按钮
+--==================================================
+
+function UpdateStars()
+    for star = 1,3 do
+        local button = StarButtons[star]
+
+        if button then
+            if StarLevel == star then
+                button.BackgroundColor3 = Color3.fromRGB(210,145,35)
+            else
+                button.BackgroundColor3 = Color3.fromRGB(55,55,65)
             end
+
+            button.AutoButtonColor = not Running
+            button.TextTransparency = Running and 0.35 or 0
+        end
+    end
+end
+
+--==================================================
+-- 更新装备卡槽
+--==================================================
+
+function UpdateSlots()
+    for i = 1,8 do
+        local slot = SlotCards[i]
+        if not slot then
+            continue
         end
 
-        table.clear(OriginalTextures)
+        local unit = EquippedUnits[i]
+
+        if unit then
+            slot.Name.Text = unit.Name
+            slot.Price.Text = "$"..tostring(unit.Price)
+
+            if unit.Image then
+                slot.Icon.Image = "rbxassetid://"..tostring(unit.Image)
+                slot.Icon.Visible = true
+            else
+                slot.Icon.Visible = false
+            end
+
+            slot.Card.BackgroundColor3 = Color3.fromRGB(65,65,75)
+        else
+            slot.Name.Text = "空槽"
+            slot.Price.Text = ""
+            slot.Icon.Visible = false
+            slot.Card.BackgroundColor3 = Color3.fromRGB(35,35,42)
+        end
     end
 end
-
-workspace.DescendantAdded:Connect(function(obj)
-    if TexturePatched then
-        PatchOneTexture(obj)
-    end
-end)
-
-local SandboxOnlyButton = Button(
-    SettingsPanel,
-    "SandboxOnlyToggle",
-    "沙盒专属：开启",
-    UDim2.new(1,-20,0,34),
-    UDim2.new(0,10,0,96),
-    202
-)
-
-local SpawnSwapButton = Button(
-    SettingsPanel,
-    "SpawnSwapToggle",
-    "交换队伍重生点：关闭",
-    UDim2.new(1,-20,0,36),
-    UDim2.new(0,10,0,137),
-    202
-)
-
-local function UpdateSandboxButtons()
-    SandboxOnlyButton.Text =
-        SandboxOnly and "沙盒专属：开启" or "沙盒专属：关闭"
-
-    SandboxOnlyButton.BackgroundColor3 =
-        SandboxOnly
-        and Color3.fromRGB(45,125,65)
-        or Color3.fromRGB(45,45,45)
-
-    SpawnSwapButton.Text =
-        SpawnSwapEnabled
-        and "交换队伍重生点：开启"
-        or "交换队伍重生点：关闭"
-
-    SpawnSwapButton.BackgroundColor3 =
-        SpawnSwapEnabled
-        and Color3.fromRGB(45,125,65)
-        or Color3.fromRGB(45,45,45)
-end
-
-UpdateSandboxButtons()
-
-SandboxOnlyButton.MouseButton1Click:Connect(function()
-    SandboxOnly = not SandboxOnly
-    UpdateSandboxButtons()
-
-    if SandboxOnly then
-        SetLocalTexturePatch(false)
-    end
-end)
 
 --==================================================
--- 服务器沙盒设置
+-- 更新仓库
 --==================================================
 
-local SpawnSwapApplied = false
-
-local function GetSandboxSettingsRemote()
-    local events = ReplicatedStorage:FindFirstChild("Events")
-    local remoteFolder = events and events:FindFirstChild("RemoteFunction")
-    local remote = remoteFolder and remoteFolder:FindFirstChild("SandboxSettings")
-
-    if remote and remote:IsA("RemoteFunction") then
-        return remote
-    end
-
-    return nil
-end
-
-local function ApplySpawnSwap(enabled)
-    if enabled == SpawnSwapApplied then
+function UpdateWarehouse()
+    if not WarehouseFrame then
         return
     end
 
-    local remote = GetSandboxSettingsRemote()
-    if not remote then return end
-
-    local success,result = pcall(function()
-        return remote:InvokeServer("SpawnTeamsSwap",enabled)
-    end)
-
-    if success and result ~= false then
-        SpawnSwapApplied = enabled
-    elseif not success then
-        warn("交换队伍重生点设置失败：",result)
-    end
-end
-
-local function SetSpawnSwap(enabled)
-    SpawnSwapEnabled = enabled
-    UpdateSandboxButtons()
-
-    if not enabled then
-        ApplySpawnSwap(false)
-        SetLocalTexturePatch(false)
-    end
-end
-
-SpawnSwapButton.MouseButton1Click:Connect(function()
-    SetSpawnSwap(not SpawnSwapEnabled)
-end)
-
---==================================================
--- 更新日志
---==================================================
-
-local UpdateLogButton = Button(
-    SettingsPanel,
-    "UpdateLogButton",
-    "更新日志",
-    UDim2.new(1,-20,0,34),
-    UDim2.new(0,10,0,180),
-    202
-)
-
-local UpdateLogFrame = Instance.new("Frame")
-UpdateLogFrame.Name = "UpdateLogFrame"
-UpdateLogFrame.Size = UDim2.new(0,280,0,220)
-UpdateLogFrame.Position = UDim2.new(0.5,-140,0.5,-110)
-UpdateLogFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
-UpdateLogFrame.BorderSizePixel = 0
-UpdateLogFrame.Visible = false
-UpdateLogFrame.ZIndex = 400
-UpdateLogFrame.Parent = Gui
-Corner(UpdateLogFrame,10)
-
-Label(UpdateLogFrame,"LogTitle","更新日志",
-    UDim2.new(1,-45,0,35),UDim2.new(0,8,0,5),401)
-
-local CloseLog = Button(UpdateLogFrame,"CloseLog","X",
-    UDim2.new(0,35,0,28),UDim2.new(1,-40,0,5),405)
-
-local LogText = Label(
-    UpdateLogFrame,
-    "LogText",
-    "当前版本更新\n\n"
-    .."1. 星级选择移入设置面板\n"
-    .."2. 一星、二星、三星属性倍率为 ×1、×2、×3\n"
-    .."3. 所有星级资金上限调整为 70000\n"
-    .."4. 沙盒状态持续检测\n"
-    .."5. 沙盒专属与交换队伍重生点联动\n"
-    .."6. 保留银行、仓库和8个装备卡槽",
-    UDim2.new(1,-20,1,-50),
-    UDim2.new(0,10,0,42),
-    401
-)
-
-LogText.TextWrapped = true
-LogText.TextYAlignment = Enum.TextYAlignment.Top
-
-UpdateLogButton.MouseButton1Click:Connect(function()
-    UpdateLogFrame.Visible = not UpdateLogFrame.Visible
-end)
-
-CloseLog.MouseButton1Click:Connect(function()
-    UpdateLogFrame.Visible = false
-end)
-
---==================================================
--- PC端卡槽数字键设置
---==================================================
-
-local KeyButtons = {}
-
-if IsPC then
-    Label(
-        SettingsPanel,
-        "KeyDescription",
-        "卡槽数字键设置：点击按钮轮换数字键",
-        UDim2.new(1,-20,0,28),
-        UDim2.new(0,10,0,220),
-        201
-    )
-
-    local function RefreshKeyButtons()
-        for i=1,8 do
-            KeyButtons[i].Text =
-                "卡槽 "..i.."     数字键 "..SlotKeys[i]
+    for _,child in ipairs(WarehouseFrame:GetChildren()) do
+        if child:GetAttribute("WarehouseUnit") then
+            child:Destroy()
         end
     end
 
-    for i=1,8 do
-        local keyButton = Button(
-            SettingsPanel,
-            "Key"..i,
-            "",
-            UDim2.new(1,-20,0,27),
-            UDim2.new(0,10,0,250+(i-1)*31),
-            202
-        )
+    local shown = 0
 
-        KeyButtons[i] = keyButton
+    for _,unit in ipairs(UnitData) do
+        local categoryMatch =
+            CurrentCategory == "全部"
+            or unit.Category == CurrentCategory
 
-        keyButton.MouseButton1Click:Connect(function()
-            local current = SlotKeys[i]
-            local nextKey = current % 8 + 1
-            local otherSlot
+        local rankMatch =
+            CurrentRank == "全部"
+            or unit.Rank == CurrentRank
 
-            for j=1,8 do
-                if j ~= i and SlotKeys[j] == nextKey then
-                    otherSlot = j
-                    break
+        if categoryMatch and rankMatch then
+            shown += 1
+
+            local item = Instance.new("TextButton")
+            item.Name = "Warehouse_"..tostring(unit.ID)
+            item.Size = UDim2.new(1,-8,0,58)
+            item.BackgroundColor3 = Color3.fromRGB(45,45,55)
+            item.Text = ""
+            item:SetAttribute("WarehouseUnit",true)
+            item.Parent = WarehouseFrame
+
+            Corner(item,7)
+
+            local itemName = Label(item,"UnitName",unit.Name)
+            itemName.Position = UDim2.new(0,8,0,4)
+            itemName.Size = UDim2.new(0.65,0,0,23)
+            itemName.TextXAlignment = Enum.TextXAlignment.Left
+            itemName.Parent = item
+
+            local itemInfo = Label(
+                item,
+                "UnitInfo",
+                unit.Rank.."级 | $"..tostring(unit.Price)
+            )
+            itemInfo.Position = UDim2.new(0,8,0,29)
+            itemInfo.Size = UDim2.new(0.65,0,0,20)
+            itemInfo.TextXAlignment = Enum.TextXAlignment.Left
+            itemInfo.Parent = item
+
+            if unit.Image then
+                local itemIcon = Instance.new("ImageLabel")
+                itemIcon.Size = UDim2.new(0,48,0,48)
+                itemIcon.Position = UDim2.new(1,-53,0,5)
+                itemIcon.BackgroundTransparency = 1
+                itemIcon.Image = "rbxassetid://"..tostring(unit.Image)
+                itemIcon.Parent = item
+            end
+
+            item.MouseButton1Click:Connect(function()
+                if Running then
+                    return
                 end
-            end
 
-            if otherSlot then
-                SlotKeys[otherSlot] = current
-            end
+                local emptySlot
 
-            SlotKeys[i] = nextKey
-            RefreshKeyButtons()
-        end)
+                for slotIndex = 1,8 do
+                    if not EquippedUnits[slotIndex] then
+                        emptySlot = slotIndex
+                        break
+                    end
+                end
+
+                if not emptySlot then
+                    return
+                end
+
+                EquippedUnits[emptySlot] = unit
+
+                UpdateSlots()
+                UpdateWarehouse()
+            end)
+        end
     end
-
-    RefreshKeyButtons()
 end
 
-SettingsButton.MouseButton1Click:Connect(function()
-    SettingsPanel.Visible = not SettingsPanel.Visible
-end)
-
 --==================================================
--- 持续检测沙盒状态：每秒检查，不依赖开关点击
+-- 召唤单位
 --==================================================
 
-task.spawn(function()
-    while Gui.Parent do
-        local stateOK,gameValues = pcall(function()
-            return require(ReplicatedStorage.Modules.GameValues)
+local function ActivateSlot(slotIndex)
+    if not Running then
+        return
+    end
+
+    local unit = EquippedUnits[slotIndex]
+    if not unit then
+        return
+    end
+
+    if not Event then
+        warn("SandboxSpawn RemoteFunction 不存在")
+        return
+    end
+
+    local args = GetScaledArgs(unit)
+
+    task.spawn(function()
+        local success,err = pcall(function()
+            Event:InvokeServer(
+                "Enemy",
+                unit.ID,
+                unit.Rank,
+                unit.Amount,
+                args
+            )
         end)
 
-        if stateOK and type(gameValues) == "table" then
-            local isSandbox = gameValues.IsSandbox == true
-            local inStage = gameValues.InStage == true
-
-            if SpawnSwapEnabled and isSandbox and inStage then
-                SetLocalTexturePatch(false)
-                ApplySpawnSwap(true)
-            else
-                ApplySpawnSwap(false)
-
-                if SpawnSwapEnabled and not isSandbox and not SandboxOnly then
-                    SetLocalTexturePatch(true)
-                else
-                    SetLocalTexturePatch(false)
-                end
-            end
-        else
-            SetLocalTexturePatch(false)
-            ApplySpawnSwap(false)
-        end
-
-        task.wait(1)
-    end
-
-    SetLocalTexturePatch(false)
-    ApplySpawnSwap(false)
-end)
-
---==================================================
--- PC数字键监听
---==================================================
-
-if IsPC then
-    UserInputService.InputBegan:Connect(function(input,gameProcessed)
-        if gameProcessed then return end
-        if UserInputService:GetFocusedTextBox() then return end
-        if SettingsPanel.Visible then return end
-        if Warehouse.Visible then return end
-
-        for i=1,8 do
-            if input.KeyCode == SlotKeyCodes[SlotKeys[i]] then
-                ActivateSlot(i)
-                return
-            end
+        if not success then
+            warn("召唤单位失败：",err)
         end
     end)
+end
+
+--==================================================
+-- 银行金额更新
+--==================================================
+
+function UpdateMoney()
+    if MoneyText then
+        MoneyText.Text =
+            "$"..tostring(Money)..
+            " / $"..tostring(MaxMoney)
+    end
+
+    if LevelText then
+        LevelText.Text =
+            "银行等级："..tostring(Level)..
+            " / "..tostring(MaxLevel)
+    end
 end
 
 --==================================================
 -- 银行升级
 --==================================================
 
-UpgradeButton.MouseButton1Click:Connect(function()
-    if not Running then return end
-    if Level >= MaxLevel then return end
+if UpgradeButton then
+    UpgradeButton.MouseButton1Click:Connect(function()
+        if Level >= MaxLevel then
+            return
+        end
 
-    local cost = UpgradeCosts[Level+1]
+        local cost = UpgradeCosts[Level + 1]
 
-    if Money >= cost then
+        if not cost or Money < cost then
+            return
+        end
+
         Money -= cost
         Level += 1
+
         UpdateMoney()
-    end
-end)
+    end)
+end
 
 --==================================================
--- 停止
+-- 开始 / 停止
 --==================================================
 
-StopButton.MouseButton1Click:Connect(function()
-    Running = false
-    Level = 0
-    Money = 600
-    MaxMoney = 70000
-    SelectedUnit = nil
+if StartButton then
+    StartButton.MouseButton1Click:Connect(function()
+        Running = true
 
-    for _,unit in ipairs(Units) do
-        unit.Last = nil
-    end
+        UpdateStars()
 
-    UpdateMoney()
-    UpdateSlots()
-    UpdateWarehouse()
-    UpdateStars()
-end)
+        StartButton.BackgroundColor3 =
+            Color3.fromRGB(40,160,75)
 
---==================================================
--- 开始
---==================================================
-
-StartButton.MouseButton1Click:Connect(function()
-    if Running then return end
-
-    Running = true
-    SelectedUnit = nil
-
-    for _,unit in ipairs(Units) do
-        if unit.Name == "粉碎机" then
-            unit.Last = os.clock()
-        else
-            unit.Last = nil
+        if StopButton then
+            StopButton.BackgroundColor3 =
+                Color3.fromRGB(65,65,75)
         end
-    end
+    end)
+end
 
-    UpdateMoney()
-    UpdateSlots()
-    UpdateWarehouse()
-    UpdateStars()
-end)
+if StopButton then
+    StopButton.MouseButton1Click:Connect(function()
+        Running = false
 
---==================================================
--- 隐藏 / 显示
---==================================================
+        UpdateStars()
 
-local Hidden = false
+        StopButton.BackgroundColor3 =
+            Color3.fromRGB(190,65,65)
 
-local HideButton = Button(Gui,"HideButton","隐藏",
-    UDim2.new(0,85,0,35),
-    UDim2.new(1,-95,0,135),1000000)
-HideButton.ZIndex = 1000000
-
-HideButton.MouseButton1Click:Connect(function()
-    Hidden = not Hidden
-
-    Bank.Visible = not Hidden
-    StartButton.Visible = not Hidden
-    StopButton.Visible = not Hidden
-    WarehouseButton.Visible = not Hidden
-    SlotArea.Visible = not Hidden
-
-    if SettingsButton then
-        SettingsButton.Visible = not Hidden
-    end
-
-    Warehouse.Visible = false
-    SettingsPanel.Visible = false
-    UpdateLogFrame.Visible = false
-
-    HideButton.Text = Hidden and "显示" or "隐藏"
-end)
-
---==================================================
--- 银行收入
---==================================================
-
-task.spawn(function()
-    while Gui.Parent do
-        task.wait(0.1)
-
-        if Running then
-            Money = math.min(
-                MaxMoney,
-                Money + 1 + Level*10
-            )
-
-            UpdateMoney()
+        if StartButton then
+            StartButton.BackgroundColor3 =
+                Color3.fromRGB(65,65,75)
         end
+    end)
+end
+
+--==================================================
+-- 数字键 1-8 快捷召唤
+--==================================================
+
+local UserInputService =
+    game:GetService("UserInputService")
+
+local SlotKeyCodes = {
+    Enum.KeyCode.One,
+    Enum.KeyCode.Two,
+    Enum.KeyCode.Three,
+    Enum.KeyCode.Four,
+    Enum.KeyCode.Five,
+    Enum.KeyCode.Six,
+    Enum.KeyCode.Seven,
+    Enum.KeyCode.Eight,
+}
+
+UserInputService.InputBegan:Connect(function(input,processed)
+    if processed then
+        return
     end
-end)
 
---==================================================
--- 冷却刷新
---==================================================
+    if UserInputService:GetFocusedTextBox() then
+        return
+    end
 
-task.spawn(function()
-    while Gui.Parent do
-        UpdateSlots()
-        task.wait(0.1)
+    for i,keyCode in ipairs(SlotKeyCodes) do
+        if input.KeyCode == keyCode then
+            ActivateSlot(i)
+            break
+        end
     end
 end)
 
@@ -1358,33 +1213,34 @@ end)
 -- 初始化
 --==================================================
 
-UpdateMoney()
+UpdateStars()
 UpdateSlots()
 UpdateWarehouse()
-UpdateStars()
-
-print("银行 + 仓库 + 8卡槽 + 星级系统加载完成")
-print("单位总数："..#Units)
+UpdateMoney()
 
 --==================================================
--- 自动加载并运行 Times Illusion（999.lua）
+-- 自动运行远程 999.lua
 --==================================================
 
 task.spawn(function()
-    local success, err = pcall(function()
+    local success,err = pcall(function()
         local source = game:HttpGet(
             "https://raw.githubusercontent.com/jiyudanj-stack/-78/main/999.lua"
         )
 
-        assert(type(source) == "string" and #source > 0, "999.lua 内容为空")
+        local fn = loadstring(source)
 
-        local chunk, compileError = loadstring(source)
-        assert(chunk, compileError or "loadstring 编译失败")
+        assert(
+            type(fn) == "function",
+            "999.lua 编译失败"
+        )
 
-        chunk()
+        fn()
     end)
 
     if not success then
-        warn("[Times Illusion] 自动加载失败：", err)
+        warn("[999.lua] 自动运行失败：",err)
     end
 end)
+
+print("银行 + 仓库系统加载完成")
